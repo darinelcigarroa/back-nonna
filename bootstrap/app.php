@@ -4,6 +4,11 @@ use Illuminate\Foundation\Application;
 use Illuminate\Http\Middleware\HandleCors;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,8 +18,50 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->append(HandleCors::class); 
+        $middleware->append(HandleCors::class);
+        $middleware->append(EnsureFrontendRequestsAreStateful::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
-    })->create();
+        // Capturar excepciones y devolver respuestas JSON limpias
+
+        $exceptions->render(function (NotFoundHttpException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ruta no encontrada',
+                'data' => null
+            ], 404);
+        });
+
+        $exceptions->render(function (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Recurso no encontrado',
+                'data' => null
+            ], 404);
+        });
+
+        $exceptions->render(function (AuthenticationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No autenticado',
+                'data' => null
+            ], 401);
+        });
+
+        $exceptions->render(function (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        });
+
+        $exceptions->render(function (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error interno en el servidor',
+                'data' => null
+            ], 500);
+        });
+    })
+    ->create();
