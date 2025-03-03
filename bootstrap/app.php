@@ -2,13 +2,16 @@
 
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Middleware\HandleCors;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Validation\ValidationException;
+use Spatie\Permission\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Auth\AuthenticationException;
+use Spatie\Permission\Middleware\PermissionMiddleware;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,12 +21,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Agregar middlewares globales
         $middleware->append(HandleCors::class);
         $middleware->append(EnsureFrontendRequestsAreStateful::class);
+        
+        // Registrar alias para middlewares de Spatie
+        $middleware->alias([
+            'role' => RoleMiddleware::class,
+            'permission' => PermissionMiddleware::class,
+            'role_or_permission' => RoleOrPermissionMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Capturar excepciones y devolver respuestas JSON limpias
-
         $exceptions->render(function (NotFoundHttpException $e) {
             return response()->json([
                 'success' => false,

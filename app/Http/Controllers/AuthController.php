@@ -64,9 +64,10 @@ class AuthController extends Controller
 
             return ApiResponse::success([
                 'user' => $user,
+                'roles' => $user->roles->pluck('name'),
                 'token' => $user->createToken('auth_token')->plainTextToken,
-            ], 'Inicio de sesión exitoso');
-            
+            ], 'Has iniciado sesión');
+
         } catch (ValidationException $e) {
             return ApiResponse::error('Error de validación', 422, $e->errors());
         } catch (Exception $e) {
