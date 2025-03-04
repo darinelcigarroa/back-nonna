@@ -12,7 +12,29 @@ class Order extends Model
     CONST STATUS_SENT = 'Enviado';
     CONST STATUS_PAID = 'Pagado';
 
+    protected $fillable = [
+        'folio',
+        'num_dinners',
+        'status',
+        'user_id',
+        'table_id',
+        'total_amount',
+    ];
+
     protected $appends = ['formatted_date', 'formatted_time'];
+
+    protected static function boot()
+    {
+        parent::boot();
+    
+        static::created(function ($order) {
+            $total = $order->orderItems->sum(function ($item) {
+                return $item->price * $item->quantity;
+            });
+    
+            $order->update(['total_amount' => $total]);
+        });
+    }
 
     // Accesor para obtener la fecha en formato Y-m-d
     public function getFormattedDateAttribute()
@@ -42,7 +64,7 @@ class Order extends Model
         });
     }
 
-    public function items()
+    public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
     }

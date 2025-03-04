@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
-            $table->foreignId('dishe_id')->constrained()->onDelete('cascade');
+            $table->foreignId('dish_id')->constrained()->onDelete('set null');
             $table->integer('quantity')->default(1);
-            $table->enum('order_type', ['Entrada', 'Sopa', 'Plato Fuerte', 'Postre', 'Bebidas'])->default('Entrada');
+            $table->string('dish_name');
             $table->decimal('price', 10, 2);
-            $table->string('Observations', 255)->nullable();
+            $table->string('observations', 255)->nullable();
             $table->timestamps();
         });
     }

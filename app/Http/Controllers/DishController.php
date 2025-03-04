@@ -6,7 +6,7 @@ use App\Models\Dish;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 
-class DisheController extends Controller
+class DishController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,9 +14,9 @@ class DisheController extends Controller
     public function index(Request $request)
     {
         try {
-            $dishes = Dish::when($request->typeDish, function ($query) use ($request){
+            $dishes = Dish::when($request->has('typeDish'), function ($query) use ($request) {
                 return $query->where('dish_type_id', $request->typeDish);
-            })->select('id', 'name', 'price', 'description')->get();
+            })->select('id', 'name', 'price', 'description', 'dish_type_id')->get();
 
             return ApiResponse::success([
                 'dishes' => $dishes

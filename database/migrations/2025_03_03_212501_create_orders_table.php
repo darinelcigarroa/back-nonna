@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('folio')->unique();
             $table->enum('status', ['Pendiente', 'Enviado', 'Pagado'])->default('Pendiente');
             $table->unsignedInteger('num_dinners')->nullable();
+            $table->decimal('total_amount', 10, 2)->default(0);
             $table->foreignId('table_id')->constrained();
             $table->foreignId('user_id')->constrained();
 

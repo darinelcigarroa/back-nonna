@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DisheController;
+use App\Http\Controllers\DishController;
 use App\Http\Controllers\DishTypeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TableController;
@@ -22,6 +22,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('waiter')->middleware('role:waiter')->group(function () {
         Route::resource('orders', OrderController::class)->except('create', 'edit');
-        Route::resource('dishes', DisheController::class)->except('create', 'edit');
+        Route::resource('dishes', DishController::class)->except('create', 'edit');
     });
 });
