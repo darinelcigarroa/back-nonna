@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('capacity');
-            $table->boolean('active')->default(false);
+            $table->boolean('status')->default(false);
             $table->timestamps();
         });
     }

@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('folio')->unique();
             $table->enum('status', ['Pendiente', 'Enviado', 'Pagado'])->default('Pendiente');
             $table->unsignedInteger('num_dinners')->nullable();
-            $table->foreignId('table_id')->constrained('tables')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreignId('table_id')->constrained();
+            $table->foreignId('user_id')->constrained();
 
             $table->timestamps();
         });

@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('dish_types', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->string('description')->nullable();
+            $table->string('name');
             $table->timestamps();
         });
     }

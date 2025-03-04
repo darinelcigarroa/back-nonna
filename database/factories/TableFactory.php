@@ -19,7 +19,7 @@ class TableFactory extends Factory
         return [
             'name' => fake()->name(),
             'capacity' => fake()->numberBetween(1, 6),
-            'active' => false,
+            'status' => false,
         ];
     }
 }

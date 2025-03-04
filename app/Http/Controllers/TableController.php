@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiResponse;
+use Exception;
 use App\Models\Table;
 use Illuminate\Http\Request;
 
@@ -12,15 +14,13 @@ class TableController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        try {
+            return ApiResponse::success([
+                'tables' => Table::select('id', 'name', 'status')->get(),
+            ]);
+        } catch (Exception $th) {
+            return ApiResponse::error('Error interno al obtener las mesas', 500);
+        }
     }
 
     /**
@@ -35,14 +35,6 @@ class TableController extends Controller
      * Display the specified resource.
      */
     public function show(Table $table)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Table $table)
     {
         //
     }

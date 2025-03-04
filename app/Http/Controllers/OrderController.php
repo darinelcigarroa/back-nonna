@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use App\Models\order;
+use App\Models\Order;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,9 +17,9 @@ class OrderController extends Controller
     {
         try {
             $orders = Order::all();
-
+          
             ApiResponse::success([
-                'orders' => $orders
+                'orders' => $orders,
             ]);
 
         } catch (Exception $e) {
@@ -33,7 +33,7 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         try {
-            dd($request->all());
+            return $request->all();
             $folio = Order::generateUniqueFolio();
         
             $order = Order::create([
@@ -43,7 +43,6 @@ class OrderController extends Controller
                 'user_id' => Auth::id(),
                 'status' => Order::STATUS_PENDING,
             ]);
-
 
         
             ApiResponse::success([

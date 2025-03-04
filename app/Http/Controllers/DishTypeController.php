@@ -2,28 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Dish;
+use Exception;
+use App\Models\DishType;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 
-class DisheController extends Controller
+class DishTypeController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
         try {
-            $dishes = Dish::when($request->typeDish, function ($query) use ($request){
-                return $query->where('dish_type_id', $request->typeDish);
-            })->select('id', 'name', 'price', 'description')->get();
-
-            return ApiResponse::success([
-                'dishes' => $dishes
+           return ApiResponse::success([
+                'dishTypes' => DishType::select('id', 'name')->get(),
             ]);
-            
-        } catch (\Throwable $th) {
-            return ApiResponse::error('Error interno al obtener los platillos', 500);
+        } catch (Exception $e) {
+            return ApiResponse::error('Error interno al obtener los tipos de platillos', 500);
         }
     }
 
@@ -46,7 +42,7 @@ class DisheController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Dish $dishe)
+    public function show(DishType $dishType)
     {
         //
     }
@@ -54,7 +50,7 @@ class DisheController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Dish $dishe)
+    public function edit(DishType $dishType)
     {
         //
     }
@@ -62,7 +58,7 @@ class DisheController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Dish $dishe)
+    public function update(Request $request, DishType $dishType)
     {
         //
     }
@@ -70,7 +66,7 @@ class DisheController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Dish $dishe)
+    public function destroy(DishType $dishType)
     {
         //
     }
