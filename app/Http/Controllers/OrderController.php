@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\Order;
-use App\Helpers\ApiResponse;
 use App\Models\OrderItem;
+use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
+use App\Events\OrderStatusUpdated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -128,10 +129,14 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         try {
-            DB::beginTransaction();
 
+            DB::beginTransaction();
+    
+            $updatedItems = [];
+    
             foreach ($request->orders as $item) {
-                $order->orderItems()->updateOrCreate(
+                $status = $item['status_id'] == OrderItem::STATUS_CREATE ? OrderItem::STATUS_IN_KITCHEN : $item['status_id'];
+                $updatedItem = $order->orderItems()->updateOrCreate(
                     ['id' => $item['id'] ?? null],
                     [
                         'dish_id' => $item['dish']['id'],
@@ -139,23 +144,29 @@ class OrderController extends Controller
                         'price' => $item['dish']['price'],
                         'dish_name' => $item['dish']['name'],
                         'observations' => $item['observations'] ?? null,
-                        'status_id' => $item['status_id'] ==   OrderItem::STATUS_CREATE  ?  OrderItem::STATUS_IN_KITCHEN :  $item['status_id'],
+                        'status_id' => $status
                     ]
                 );
+    
+                $updatedItems[] = $updatedItem;
             }
     
+            broadcast(new OrderStatusUpdated(collect($updatedItems)))->toOthers();
+           
             DB::commit();
     
             return ApiResponse::success([
-                'orderItems' => $order->orderItems
+                'orderItems' => $updatedItems
             ], 'OrderItems actualizados correctamente', 200);
     
         } catch (Exception $e) {
             Log::error($e);
             DB::rollBack();
+    
             return ApiResponse::error('Error interno al actualizar los OrderItems', 500);
         }
     }
+    
 
     /**
      * Remove the specified resource from storage.

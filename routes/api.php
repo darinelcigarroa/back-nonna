@@ -9,10 +9,9 @@ use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\TableController;
 
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::get('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('update-password', [AuthController::class, 'updatePassword']);
 
@@ -27,3 +26,4 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::resource('dishes', DishController::class)->except('create', 'edit', 'show');
     });
 });
+
