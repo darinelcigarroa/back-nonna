@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\OrderItem;
+use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 
 class OrderItemController extends Controller
@@ -60,6 +61,12 @@ class OrderItemController extends Controller
      */
     public function destroy(OrderItem $orderItem)
     {
-        //
+        try {
+            $orderItem->delete();
+
+            return ApiResponse::success([], 'Se ha notificado al chef', 200);
+        } catch (\Throwable $th) {
+            return ApiResponse::error('Error interno al eliminar la orden', 500);
+        }
     }
 }

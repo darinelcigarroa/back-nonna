@@ -23,29 +23,14 @@ class Order extends Model
 
     protected $appends = ['formatted_date', 'formatted_time'];
 
-    protected static function boot()
-    {
-        parent::boot();
-    
-        static::created(function ($order) {
-            $total = $order->orderItems->sum(function ($item) {
-                return $item->price * $item->quantity;
-            });
-    
-            $order->update(['total_amount' => $total]);
-        });
-    }
-
-    // Accesor para obtener la fecha en formato Y-m-d
     public function getFormattedDateAttribute()
     {
         return $this->created_at ? $this->created_at->format('Y-m-d') : null;
     }
 
-    // Accesor para obtener solo la hora en formato H:i:s
     public function getFormattedTimeAttribute()
     {
-        return $this->created_at ? $this->created_at->format('H:i:s') : null;
+        return $this->created_at ? $this->created_at->format('H:i:s A') : null;
     }
 
     public static function generateUniqueFolio()
@@ -64,9 +49,18 @@ class Order extends Model
         });
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function table()
+    {
+        return $this->belongsTo(Table::class);
+    }
+
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
     }
-
 }

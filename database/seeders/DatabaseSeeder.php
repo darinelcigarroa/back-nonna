@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             TableSeeder::class,
             DishTypeSeeder::class,
             DishSeeder::class,
+            DishStatusSeeder::class,
         ]);
     }
 }
