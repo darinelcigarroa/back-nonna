@@ -20,11 +20,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::resource('dish-types', DishTypeController::class)->except('create', 'edit', 'show');
     });
 
-    Route::prefix('waiter')->middleware('role:waiter')->group(function () {
-        Route::resource('orders', OrderController::class)->except('create', 'show');
-        Route::post('orders/cancel-editing/{order}', [OrderController::class, 'cancelEditing']);
-        Route::resource('order-item', OrderItemController::class)->except('create', 'show');
-        Route::resource('dishes', DishController::class)->except('create', 'edit', 'show');
-    });
-});
+    // ORDER
+    Route::resource('orders', OrderController::class)->except('create', 'show');
+    Route::post('orders/cancel-editing/{order}', [OrderController::class, 'cancelEditing']);
+    // ORDER ITEMS
+    Route::resource('order-item', OrderItemController::class)->except('create', 'show');
+    Route::patch('order-items/status/preparing', [OrderItemController::class, 'setPreparingStatus']);
+    // DISH
+    Route::resource('dishes', DishController::class)->except('create', 'show');
 
+});

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\OrderItem;
+use App\Models\DishStatus;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class OrderItemController extends Controller
 {
@@ -67,6 +69,18 @@ class OrderItemController extends Controller
             return ApiResponse::success([], 'Se ha notificado al chef', 200);
         } catch (\Throwable $th) {
             return ApiResponse::error('Error interno al eliminar la orden', 500);
+        }
+    }
+
+    public function setPreparingStatus(Request $request)
+    {
+        try {
+            Log::info($request->all());
+            OrderItem::whereIn('id', $request['ids'])->update(['status_id' => $request['status_id']]);
+    
+            return ApiResponse::success([], 'Se ha notificado al chef', 200);
+        } catch (\Throwable $th) {
+            return ApiResponse::error('Error interno al actualizar la orden', 500);
         }
     }
 }

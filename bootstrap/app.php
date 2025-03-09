@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Middleware\HandleCors;
 use Illuminate\Auth\AuthenticationException;
@@ -9,6 +8,7 @@ use Spatie\Permission\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Exceptions\UnauthorizedException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -67,14 +67,22 @@ return Application::configure(basePath: dirname(__DIR__))
             ], 422);
         });
 
-        $exceptions->render(function (\Exception $e) {
-            Log::error($e);
+        $exceptions->render(function (UnauthorizedException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Errorrrrr interno en el servidor',
+                'message' => 'No tienes permisos para realizar esta acción',
+                'data' => null
+            ], 403);
+        });
+        
+        $exceptions->render(function (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error interno en el servidor',
                 'data' => null
             ], 500);
         });
+        
     })->withBroadcasting(
         __DIR__.'/../routes/channels.php',
         ['prefix' => 'api', 'middleware' => ['auth:sanctum']],

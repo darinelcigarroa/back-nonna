@@ -65,8 +65,8 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-    // public function orderStatus()
-    // {
-    //     return $this->belongsTo(OrderStatus::class);
-    // }
+    public function orderStatus()
+    {
+        return $this->belongsTo(OrderStatus::class);
+    }
 }

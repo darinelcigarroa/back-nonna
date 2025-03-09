@@ -11,16 +11,24 @@ use App\Events\OrderStatusUpdated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class OrderController extends Controller
 {
+    use AuthorizesRequests;
+    
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
         try {
-            $orders = Order::with(['table'])->select(
+            $this->authorize('viewAny', Order::class);
+
+            $orders = Order::with(['table', 'orderItems' => function ($query) {
+                $query->select('id', 'dish_id', 'quantity', 'price', 'dish_name', 'observations','status_id', 'order_id')
+                ->with('orderItemStatus')->orderBy('id', 'ASC');
+            }])->select(
                 'id',
                 'folio',
                 'num_dinners',
@@ -44,6 +52,8 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         try {
+            $this->authorize('create', Order::class);
+
             DB::beginTransaction();
             $folio = Order::generateUniqueFolio();
             $total = 0;
@@ -100,6 +110,8 @@ class OrderController extends Controller
     public function edit(Order $order)
     {
         try {
+            $this->authorize('edit', Order::class);
+
             $order->update([
                 'order_status_id' => Order::STATUS_EDIT
             ]);
@@ -122,6 +134,7 @@ class OrderController extends Controller
             ];
 
             return ApiResponse::success(['order' => $orderData, 'orderItems' => $order->orderItems]);
+
         } catch (\Exception $e) {
             Log::error($e);
             return ApiResponse::error('Error interno al obtener la orden', 500);
@@ -133,6 +146,8 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         try {
+            // $this->authorize('update', Order::class);
+            
             DB::beginTransaction();
 
             $updatedItems = [];
@@ -175,6 +190,8 @@ class OrderController extends Controller
     public function destroy(order $order)
     {
         try {
+            $this->authorize('delete', Order::class);
+
             $order->delete();
             return ApiResponse::success(['message' => 'Orden eliminada correctamente']);
         } catch (Exception $e) {
