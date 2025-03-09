@@ -24,7 +24,7 @@ class OrderController extends Controller
                 'id',
                 'folio',
                 'num_dinners',
-                'status',
+                'order_status_id',
                 'table_id',
                 'total_amount',
                 'created_at'
@@ -53,11 +53,10 @@ class OrderController extends Controller
                 'table_id' => $request->table_id,
                 'num_dinners' => $request->num_dinners,
                 'user_id' => Auth::id(),
-                'status' => Order::STATUS_PENDING,
+                'order_status_id' => Order::STATUS_PENDING,
                 'total_amount' => $total,
             ]);
 
-            Log::info('ok', $request->orders);
             foreach ($request->orders as $item) {
 
                 $orderItem = $order->orderItems()->create([
@@ -101,10 +100,14 @@ class OrderController extends Controller
     public function edit(Order $order)
     {
         try {
+            $order->update([
+                'order_status_id' => Order::STATUS_EDIT
+            ]);
+
             $order->loadMissing([
-                'orderItems:id,quantity,observations,order_id,status_id,dish_id',
-                'orderItems.dish:id,name,dish_type_id,price', // Asegúrate de incluir `dish_type_id` si es clave foránea
-                'orderItems.dish.dishType:id,name', // Cargar la relación `typeDish`
+                'orderItems:id,quantity,observations,order_id,dish_id,status_id',
+                'orderItems.dish:id,name,dish_type_id,price',
+                'orderItems.dish.dishType:id,name',
                 'table:id,capacity,name'
             ]);
 
@@ -120,6 +123,7 @@ class OrderController extends Controller
 
             return ApiResponse::success(['order' => $orderData, 'orderItems' => $order->orderItems]);
         } catch (\Exception $e) {
+            Log::error($e);
             return ApiResponse::error('Error interno al obtener la orden', 500);
         }
     }
@@ -129,12 +133,12 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         try {
-
             DB::beginTransaction();
-    
+
             $updatedItems = [];
-    
+
             foreach ($request->orders as $item) {
+                Log::info($item);
                 $status = $item['status_id'] == OrderItem::STATUS_CREATE ? OrderItem::STATUS_IN_KITCHEN : $item['status_id'];
                 $updatedItem = $order->orderItems()->updateOrCreate(
                     ['id' => $item['id'] ?? null],
@@ -147,39 +151,53 @@ class OrderController extends Controller
                         'status_id' => $status
                     ]
                 );
-    
+
                 $updatedItems[] = $updatedItem;
             }
-    
+
             broadcast(new OrderStatusUpdated(collect($updatedItems)))->toOthers();
-           
+
             DB::commit();
-    
+
             return ApiResponse::success([
                 'orderItems' => $updatedItems
             ], 'OrderItems actualizados correctamente', 200);
-    
         } catch (Exception $e) {
             Log::error($e);
             DB::rollBack();
-    
+
             return ApiResponse::error('Error interno al actualizar los OrderItems', 500);
         }
     }
-    
-
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(order $order)
     {
         try {
-            
             $order->delete();
             return ApiResponse::success(['message' => 'Orden eliminada correctamente']);
         } catch (Exception $e) {
             Log::error($e);
             return ApiResponse::error('Error interno al eliminar la orden', 500);
+        }
+    }
+
+    public function cancelEditing(Order $order)
+    {
+        try {
+            if ($order->order_status_id === Order::STATUS_EDIT) {
+                $order->update([
+                    'order_status_id' => Order::STATUS_PENDING
+                ]);
+
+                return ApiResponse::success(null, 'Estado regresado a pendiente.');
+            }
+
+            return ApiResponse::success(null, 'No se requiere actualización.');
+        } catch (\Exception $e) {
+            Log::error($e);
+            return ApiResponse::error('Error al cancelar edición, avisar al administrador', 500);
         }
     }
 }

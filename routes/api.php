@@ -9,7 +9,7 @@ use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\TableController;
 
 Route::post('/register', [AuthController::class, 'register']);
-Route::get('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('waiter')->middleware('role:waiter')->group(function () {
         Route::resource('orders', OrderController::class)->except('create', 'show');
+        Route::post('orders/cancel-editing/{order}', [OrderController::class, 'cancelEditing']);
         Route::resource('order-item', OrderItemController::class)->except('create', 'show');
         Route::resource('dishes', DishController::class)->except('create', 'edit', 'show');
     });

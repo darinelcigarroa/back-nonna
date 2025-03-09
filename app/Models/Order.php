@@ -2,20 +2,21 @@
 
 namespace App\Models;
 
-use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    CONST STATUS_PENDING = 'Pendiente';
-    CONST STATUS_SENT = 'Enviado';
-    CONST STATUS_PAID = 'Pagado';
+    const STATUS_PENDING = 1;
+    const STATUS_SENT = 2;
+    const STATUS_PAID = 3;
+    const STATUS_EDIT = 4;
+    const STATUS_CANCELED = 5;
 
     protected $fillable = [
         'folio',
         'num_dinners',
-        'status',
+        'order_status_id',
         'user_id',
         'table_id',
         'total_amount',
@@ -63,4 +64,9 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    // public function orderStatus()
+    // {
+    //     return $this->belongsTo(OrderStatus::class);
+    // }
 }

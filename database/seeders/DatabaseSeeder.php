@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             DishTypeSeeder::class,
             DishSeeder::class,
             DishStatusSeeder::class,
+            OrderStatusSeeder::class,
         ]);
     }
 }

@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('folio')->unique();
-            $table->enum('status', ['Pendiente', 'Enviado', 'Pagado'])->default('Pendiente');
             $table->unsignedInteger('num_dinners')->nullable();
             $table->decimal('total_amount', 10, 2)->default(0);
             $table->foreignId('table_id')->constrained();
+            $table->foreignId('order_status_id')->constrained();
             $table->foreignId('user_id')->constrained();
 
             $table->timestamps();
