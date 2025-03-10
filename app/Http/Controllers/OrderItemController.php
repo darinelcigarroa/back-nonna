@@ -6,10 +6,15 @@ use App\Models\OrderItem;
 use App\Models\DishStatus;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use App\Events\OrderItemsUpdated;
 use Illuminate\Support\Facades\Log;
+use App\Actions\UpdateOrderItemStatusAction;
 
 class OrderItemController extends Controller
 {
+    public function __construct(protected UpdateOrderItemStatusAction $updateOrderItemStatusAction) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -72,15 +77,29 @@ class OrderItemController extends Controller
         }
     }
 
-    public function setPreparingStatus(Request $request)
+    public function updateDishStatus(Request $request)
     {
         try {
-            Log::info($request->all());
-            OrderItem::whereIn('id', $request['ids'])->update(['status_id' => $request['status_id']]);
-    
-            return ApiResponse::success([], 'Se ha notificado al chef', 200);
+            $result = $this->updateOrderItemStatusAction->execute(
+                $request->input('orderItems'),
+                $request->input('status_id')
+            );
+
+            if (!$result['success']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message']
+                ], 409);
+            }
+
+            return ApiResponse::success(
+                $result['data'],
+                $result['message']
+            );
+
         } catch (\Throwable $th) {
-            return ApiResponse::error('Error interno al actualizar la orden', 500);
+            return ApiResponse::error('Error interno al actualizar el platillo', 500);
         }
-    }
+    }    
+    
 }

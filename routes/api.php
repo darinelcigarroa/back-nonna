@@ -3,10 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DishController;
-use App\Http\Controllers\DishTypeController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\TableController;
+use App\Http\Controllers\DishTypeController;
+use App\Http\Controllers\ChefOrderController;
+use App\Http\Controllers\OrderItemController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -25,8 +26,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('orders/cancel-editing/{order}', [OrderController::class, 'cancelEditing']);
     // ORDER ITEMS
     Route::resource('order-item', OrderItemController::class)->except('create', 'show');
-    Route::patch('order-items/status/preparing', [OrderItemController::class, 'setPreparingStatus']);
+    Route::patch('order-items/update-dish-status', [OrderItemController::class, 'updateDishStatus']);
     // DISH
     Route::resource('dishes', DishController::class)->except('create', 'show');
+    // CHEF
+    Route::get('chef/orders', [ChefOrderController::class, 'index']);
 
 });

@@ -7,7 +7,8 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
-use App\Events\OrderStatusUpdated;
+use App\Services\OrderService;
+use App\Events\WaiterEditingOrder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -16,33 +17,28 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class OrderController extends Controller
 {
     use AuthorizesRequests;
-    
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function __construct(protected OrderService $orderService) {}
+
+    public function index(Request $request)
     {
         try {
             $this->authorize('viewAny', Order::class);
 
-            $orders = Order::with(['table', 'orderItems' => function ($query) {
-                $query->select('id', 'dish_id', 'quantity', 'price', 'dish_name', 'observations','status_id', 'order_id')
-                ->with('orderItemStatus')->orderBy('id', 'ASC');
-            }])->select(
-                'id',
-                'folio',
-                'num_dinners',
-                'order_status_id',
-                'table_id',
-                'total_amount',
-                'created_at'
-            )->get();
+            $orders = $this->orderService->getOrders(
+                $request->input('per_page'),
+                false // ✅ Mesero debe ver todos los items
+            );
 
             return ApiResponse::success([
-                'orders' => $orders,
+                'orders' => $orders
             ]);
-        } catch (Exception $e) {
-            return ApiResponse::error('Error interno al obtener las ordenes', 500);
+
+        } catch (\Throwable $th) {
+            return ApiResponse::error('Error interno al obtener las órdenes', 500);
         }
     }
 
@@ -112,6 +108,8 @@ class OrderController extends Controller
         try {
             $this->authorize('edit', Order::class);
 
+            broadcast(new WaiterEditingOrder($order->id))->toOthers();
+
             $order->update([
                 'order_status_id' => Order::STATUS_EDIT
             ]);
@@ -134,7 +132,6 @@ class OrderController extends Controller
             ];
 
             return ApiResponse::success(['order' => $orderData, 'orderItems' => $order->orderItems]);
-
         } catch (\Exception $e) {
             Log::error($e);
             return ApiResponse::error('Error interno al obtener la orden', 500);
@@ -147,7 +144,7 @@ class OrderController extends Controller
     {
         try {
             // $this->authorize('update', Order::class);
-            
+
             DB::beginTransaction();
 
             $updatedItems = [];
@@ -169,8 +166,6 @@ class OrderController extends Controller
 
                 $updatedItems[] = $updatedItem;
             }
-
-            broadcast(new OrderStatusUpdated(collect($updatedItems)))->toOthers();
 
             DB::commit();
 
