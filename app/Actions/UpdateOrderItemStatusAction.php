@@ -22,9 +22,11 @@ class UpdateOrderItemStatusAction
 
         $ids = array_column($orderItems, 'id');
 
+        $orderID = collect($orderItems)->pluck('order_id')->unique();
+
         $this->orderItemService->updateOrderItems($ids, $statusId);
 
-        $updatedItems = $this->orderItemService->getUpdatedItems($ids);
+        $updatedItems = $this->orderItemService->getUpdatedItems($ids, $orderID);
 
         $this->orderItemService->broadcastOrderUpdate($updatedItems);
 

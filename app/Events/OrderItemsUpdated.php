@@ -18,7 +18,7 @@ class OrderItemsUpdated implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct(public int $orderId, public $orderItems)
+    public function __construct(public int $orderId, public array $orderItems, public bool $completed)
     {
         Log::info('entrando a evento OrderItemsUpdated');
     }
@@ -39,7 +39,8 @@ class OrderItemsUpdated implements ShouldBroadcast
     {
         return [
             'orderId' => $this->orderId,
-            'orderItems' => $this->orderItems
+            'orderItems' => $this->orderItems,
+            'completed' => $this->completed,
         ];
     }
 }

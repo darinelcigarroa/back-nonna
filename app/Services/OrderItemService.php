@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use Carbon\Carbon;
 use App\Models\OrderItem;
 use App\Events\OrderItemsUpdated;
-use Carbon\Carbon;
 
 class OrderItemService
 {
@@ -33,13 +33,21 @@ class OrderItemService
         OrderItem::whereIn('id', $ids)->update(['status_id' => $statusId]);
     }
 
-    public function getUpdatedItems($ids)
+    public function getUpdatedItems($ids, $orderID)
     {
-        return OrderItem::with('orderItemStatus')->whereIn('id', $ids)->get();
+        $completed = !OrderItem::where('order_id', $orderID)
+            ->where('status_id', '!=', OrderItem::STATUS_READY_TO_SERVE)
+            ->exists();
+
+        return [
+            'completed' => $completed,
+            'ordersItem' => OrderItem::with('orderItemStatus')->whereIn('id', $ids)->get()
+        ];
     }
 
     public function broadcastOrderUpdate($updatedItems)
     {
-        broadcast(new OrderItemsUpdated($updatedItems->first()->order_id, $updatedItems->toArray()));
+        $orderItems = $updatedItems['ordersItem'];
+        broadcast(new OrderItemsUpdated($orderItems->first()->order_id, $orderItems->toArray(), $updatedItems['completed']));
     }
 }
