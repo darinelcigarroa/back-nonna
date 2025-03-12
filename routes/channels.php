@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Broadcast;
 
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
@@ -14,6 +13,6 @@ Broadcast::channel('order-items-updated', function ($user) {
     return $user->hasRole(['chef', 'admin', 'waiter']);
 });
 
-Broadcast::channel('waiter-editing-order.{orderId}', function ($user) {
-    return $user->hasRole(['waiter']);
+Broadcast::channel('waiter-editing-order', function ($user) {
+    return $user->hasRole(['waiter', 'chef']);
 });

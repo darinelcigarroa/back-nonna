@@ -8,6 +8,7 @@ use App\Models\OrderItem;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use App\Services\OrderService;
+use App\Events\OrderItemsUpdated;
 use App\Events\WaiterEditingOrder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -36,7 +37,6 @@ class OrderController extends Controller
             return ApiResponse::success([
                 'orders' => $orders
             ]);
-
         } catch (\Throwable $th) {
             return ApiResponse::error('Error interno al obtener las órdenes', 500);
         }
@@ -108,11 +108,11 @@ class OrderController extends Controller
         try {
             $this->authorize('edit', Order::class);
 
-            broadcast(new WaiterEditingOrder($order->id))->toOthers();
-
             $order->update([
                 'order_status_id' => Order::STATUS_EDIT
             ]);
+
+            broadcast(new WaiterEditingOrder($order))->toOthers();
 
             $order->loadMissing([
                 'orderItems:id,quantity,observations,order_id,dish_id,status_id',
@@ -149,6 +149,7 @@ class OrderController extends Controller
 
             $updatedItems = [];
 
+
             foreach ($request->orders as $item) {
                 Log::info($item);
                 $status = $item['status_id'] == OrderItem::STATUS_CREATE ? OrderItem::STATUS_IN_KITCHEN : $item['status_id'];
@@ -166,6 +167,8 @@ class OrderController extends Controller
 
                 $updatedItems[] = $updatedItem;
             }
+
+            broadcast(new OrderItemsUpdated($order->id, $updatedItems, false));
 
             DB::commit();
 
@@ -199,9 +202,12 @@ class OrderController extends Controller
     {
         try {
             if ($order->order_status_id === Order::STATUS_EDIT) {
+
                 $order->update([
                     'order_status_id' => Order::STATUS_PENDING
                 ]);
+
+                broadcast(new WaiterEditingOrder($order))->toOthers();
 
                 return ApiResponse::success(null, 'Estado regresado a pendiente.');
             }

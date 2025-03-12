@@ -2,25 +2,19 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-
-class WaiterEditingOrder
+class WaiterEditingOrder implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(public int $orderId, public $orderItem = null)
-    {
-        //
-    }
+    public function __construct(public  $order, public $orderItem = null) {}
 
     /**
      * Get the channels the event should broadcast on.
@@ -30,15 +24,15 @@ class WaiterEditingOrder
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("waiter-editing-order.$this->orderId"),
+            new PrivateChannel("waiter-editing-order"),
         ];
     }
 
-    public function broadcastWith()
+    public function broadcastWith(): array
     {
         return [
-            'orderId' => $this->orderId,
-            'orderItemID' => $this->orderItem->id,
+            'order' => $this->order,
+            'orderItemID' => $this->orderItem?->id ?? null,
         ];
     }
 }
