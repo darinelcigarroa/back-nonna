@@ -157,9 +157,7 @@ class OrderController extends Controller
 
             $updatedItems = [];
 
-
             foreach ($request->orders as $item) {
-                Log::info($item);
                 $status = $item['status_id'] == OrderItem::STATUS_CREATE ? OrderItem::STATUS_IN_KITCHEN : $item['status_id'];
                 $updatedItem = $order->orderItems()->updateOrCreate(
                     ['id' => $item['id'] ?? null],
@@ -176,7 +174,7 @@ class OrderController extends Controller
                 $updatedItems[] = $updatedItem;
             }
 
-            broadcast(new OrderItemsUpdated($order->id, $updatedItems, false));
+            broadcast(new OrderItemsUpdated($order->id, $updatedItems, false))->toOthers();
 
             DB::commit();
 

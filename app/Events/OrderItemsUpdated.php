@@ -2,11 +2,14 @@
 
 namespace App\Events;
 
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+
 class OrderItemsUpdated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
@@ -16,6 +19,7 @@ class OrderItemsUpdated implements ShouldBroadcast
      */
     public function __construct(public int $orderId, public array $orderItems, public bool $completed)
     {
+        Log::info(Auth::user());
     }
 
     /**

@@ -1,12 +1,14 @@
 <?php
 namespace App\Events;
 
+use App\Services\OrderService;
+
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
+
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use App\Services\OrderService;
 
 class OrdersUpdated implements ShouldBroadcast
 {
@@ -18,7 +20,6 @@ class OrdersUpdated implements ShouldBroadcast
  
     public function __construct(public $order = null)
     {
- 
     }
 
     /**

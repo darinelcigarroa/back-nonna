@@ -82,6 +82,7 @@ class OrderItemController extends Controller
     {
         try {
             DB::beginTransaction();
+            Log::info('updateDishStatus');
             $result = $this->updateOrderItemStatusAction->execute(
                 $request->input('orderItems'),
                 $request->input('status_id')
