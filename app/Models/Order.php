@@ -4,15 +4,12 @@ namespace App\Models;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Order extends Model
 {
-    const STATUS_PENDING = 1;
-    const STATUS_SENT = 2;
-    const STATUS_PAID = 3;
-    const STATUS_EDIT = 4;
-    const STATUS_CANCELED = 5;
-
+    use HasFactory;
+    
     protected $fillable = [
         'folio',
         'num_dinners',

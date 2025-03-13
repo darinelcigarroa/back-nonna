@@ -4,12 +4,15 @@ namespace App\Services;
 
 use App\Models\Order;
 use App\Models\OrderStatus;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class OrderService
 {
-    public function getOrders($rowsPerPage, $excludeCompleted = false)
+    public function getOrders($rowsPerPage, $chef = false)
     {
+        $userId = Auth::id();
+
         $query = Order::with(['table', 'orderItems' => function ($query)  {
             $query->select(
                 'id',
@@ -25,8 +28,11 @@ class OrderService
                 ->with('orderItemStatus')
                 ->orderBy('id', 'ASC');
         }])
-            ->when($excludeCompleted, function ($query) {
+            ->when($chef, function ($query) {
                 $query->where('order_status_id', '!=', OrderStatus::COMPLETED);
+            })
+            ->when(!$chef, function ($query) use ($userId){
+                $query->where('user_id', $userId);
             })
             ->select(
                 'id',

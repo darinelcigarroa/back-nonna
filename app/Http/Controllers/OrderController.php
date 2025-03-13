@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Exception;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrderStatus;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use App\Events\OrdersUpdated;
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Http\Controllers\Controller;
+use App\Models\OrderItemStatus;
 
 class OrderController extends Controller
 {
@@ -60,7 +63,7 @@ class OrderController extends Controller
                 'table_id' => $request->table_id,
                 'num_dinners' => $request->num_dinners,
                 'user_id' => Auth::id(),
-                'order_status_id' => Order::STATUS_PENDING,
+                'order_status_id' => OrderStatus::PENDING,
                 'total_amount' => $total,
             ]);
 
@@ -72,7 +75,7 @@ class OrderController extends Controller
                     'price' => $item['dish']['price'],
                     'dish_name' => $item['dish']['name'],
                     'observations' => $item['observations'] ?? null,
-                    'status_id' => OrderItem::STATUS_IN_KITCHEN,
+                    'status_id' => OrderItemStatus::STATUS_IN_KITCHEN,
                 ]);
 
                 $total += $orderItem->price * $orderItem->quantity;
@@ -117,7 +120,7 @@ class OrderController extends Controller
             $this->authorize('edit', Order::class);
 
             $order->update([
-                'order_status_id' => Order::STATUS_EDIT
+                'order_status_id' => OrderStatus::EDITING
             ]);
 
             broadcast(new WaiterEditingOrder($order))->toOthers();
@@ -158,7 +161,7 @@ class OrderController extends Controller
             $updatedItems = [];
 
             foreach ($request->orders as $item) {
-                $status = $item['status_id'] == OrderItem::STATUS_CREATE ? OrderItem::STATUS_IN_KITCHEN : $item['status_id'];
+                $status = $item['status_id'] == OrderItemStatus::STATUS_CREATED ? OrderItemStatus::STATUS_IN_KITCHEN : $item['status_id'];
                 $updatedItem = $order->orderItems()->updateOrCreate(
                     ['id' => $item['id'] ?? null],
                     [
@@ -170,7 +173,7 @@ class OrderController extends Controller
                         'status_id' => $status
                     ]
                 );
-
+                $updatedItem->load(['orderItemStatus:id,name']);
                 $updatedItems[] = $updatedItem;
             }
 
@@ -195,8 +198,9 @@ class OrderController extends Controller
     {
         try {
             $this->authorize('delete', Order::class);
-
+            
             $order->delete();
+            
             return ApiResponse::success(['message' => 'Orden eliminada correctamente']);
         } catch (Exception $e) {
             Log::error($e);
@@ -207,10 +211,10 @@ class OrderController extends Controller
     public function cancelEditing(Order $order)
     {
         try {
-            if ($order->order_status_id === Order::STATUS_EDIT) {
+            if ($order->order_status_id === OrderStatus::EDITING) {
 
                 $order->update([
-                    'order_status_id' => Order::STATUS_PENDING
+                    'order_status_id' => OrderStatus::PENDING
                 ]);
 
                 broadcast(new WaiterEditingOrder($order))->toOthers();

@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\OrderItem;
-use App\Models\DishStatus;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use App\Events\OrderItemsUpdated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Actions\UpdateOrderItemStatusAction;
+use App\Events\OrderItemDeleted;
 
 class OrderItemController extends Controller
 {
@@ -70,11 +68,19 @@ class OrderItemController extends Controller
     public function destroy(OrderItem $orderItem)
     {
         try {
-            $orderItem->delete();
+            $ordersAvailable = OrderItem::where('order_id', $orderItem->order_id)->count();
+           
+            if ($ordersAvailable == 1) {
+                return ApiResponse::error('La orden debe de tener al menos un platillo', 500);
+            }
 
-            return ApiResponse::success([], 'Se ha notificado al chef', 200);
+            $orderItem->delete();
+            broadcast(new OrderItemDeleted($orderItem->only(['id', 'order_id'])));
+
+            return ApiResponse::success([], 'Se ha eliminado el platillo', 200);
         } catch (\Throwable $th) {
-            return ApiResponse::error('Error interno al eliminar la orden', 500);
+            Log::info($th);
+            return ApiResponse::error('Error interno al eliminar el platillo', 500);
         }
     }
 

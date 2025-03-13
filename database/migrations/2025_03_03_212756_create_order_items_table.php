@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('quantity')->default(1);
             $table->string('dish_name');
             $table->decimal('price', 10, 2);
-            $table->foreignId('status_id')->constrained('dish_statuses')->default(1);
+            $table->foreignId('status_id')->constrained('order_item_statuses')->default(1);
             $table->string('observations', 255)->nullable();
             $table->timestamps();
         });

@@ -8,6 +8,8 @@ use App\Models\OrderItem;
 use App\Models\OrderStatus;
 use App\Events\OrdersUpdated;
 use App\Events\OrderItemsUpdated;
+use App\Models\OrderItemStatus;
+
 class OrderItemService
 {
     public function validateConflicts($incomingItems)
@@ -37,7 +39,7 @@ class OrderItemService
 
         // Verifica directamente si hay elementos pendientes
         $pendingItems = !OrderItem::where('order_id', $orderID)
-            ->where('status_id', '!=', OrderItem::STATUS_READY_TO_SERVE)
+            ->where('status_id', '!=', OrderItemStatus::STATUS_READY_TO_SERVE)
             ->exists();
 
         // Si no hay elementos pendientes, actualiza el estado de la orden
@@ -51,7 +53,7 @@ class OrderItemService
 
     public function getUpdatedItems($ids)
     {
-        return OrderItem::with('orderItemStatus')->whereIn('id', $ids)->get()->toArray();
+        return OrderItem::with('orderItemStatus:id,name')->whereIn('id', $ids)->get()->toArray();
     }
 
     public function broadcastOrderUpdate($orderID, $orderItems, $completed)
