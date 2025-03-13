@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\Services\OrderItemService;
+use Illuminate\Support\Facades\Log;
 
 class UpdateOrderItemStatusAction
 {
@@ -22,13 +23,15 @@ class UpdateOrderItemStatusAction
 
         $ids = array_column($orderItems, 'id');
 
-        $orderID = collect($orderItems)->pluck('order_id')->unique();
+        $orderID = (int) array_unique(array_column($orderItems, 'order_id'))[0];
 
-        $this->orderItemService->updateOrderItems($ids, $statusId);
+        $completed = $this->orderItemService->updateOrderItems($ids, $statusId, $orderID);
 
-        $updatedItems = $this->orderItemService->getUpdatedItems($ids, $orderID);
+        $updatedItems = $this->orderItemService->getUpdatedItems($ids);
+        
+        $this->orderItemService->broadcastOrderUpdate($orderID, $updatedItems, $completed);
 
-        $this->orderItemService->broadcastOrderUpdate($updatedItems);
+        $this->orderItemService->broadcastPendingOrdersCountUpdated();
 
         return [
             'success' => true,

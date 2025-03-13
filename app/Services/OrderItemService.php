@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use Carbon\Carbon;
+use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrderStatus;
+use App\Events\OrdersUpdated;
 use App\Events\OrderItemsUpdated;
-
 class OrderItemService
 {
     public function validateConflicts($incomingItems)
@@ -28,26 +30,37 @@ class OrderItemService
         return $conflicts;
     }
 
-    public function updateOrderItems($ids, $statusId)
+    public function updateOrderItems($ids, $statusId, $orderID)
     {
+        // Actualiza los elementos de la orden
         OrderItem::whereIn('id', $ids)->update(['status_id' => $statusId]);
-    }
 
-    public function getUpdatedItems($ids, $orderID)
-    {
-        $completed = !OrderItem::where('order_id', $orderID)
+        // Verifica directamente si hay elementos pendientes
+        $pendingItems = !OrderItem::where('order_id', $orderID)
             ->where('status_id', '!=', OrderItem::STATUS_READY_TO_SERVE)
             ->exists();
 
-        return [
-            'completed' => $completed,
-            'ordersItem' => OrderItem::with('orderItemStatus')->whereIn('id', $ids)->get()
-        ];
+        // Si no hay elementos pendientes, actualiza el estado de la orden
+        if ($pendingItems) {
+            Order::where('id', $orderID)->update(['order_status_id' => OrderStatus::COMPLETED]);
+        }
+        
+        return $pendingItems;
     }
 
-    public function broadcastOrderUpdate($updatedItems)
+
+    public function getUpdatedItems($ids)
     {
-        $orderItems = $updatedItems['ordersItem'];
-        broadcast(new OrderItemsUpdated($orderItems->first()->order_id, $orderItems->toArray(), $updatedItems['completed']));
+        return OrderItem::with('orderItemStatus')->whereIn('id', $ids)->get()->toArray();
+    }
+
+    public function broadcastOrderUpdate($orderID, $orderItems, $completed)
+    {
+        broadcast(new OrderItemsUpdated($orderID, $orderItems, $completed));
+    }
+
+    public function broadcastPendingOrdersCountUpdated()
+    {
+        broadcast(new OrdersUpdated());
     }
 }

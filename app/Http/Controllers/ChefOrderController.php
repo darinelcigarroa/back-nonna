@@ -24,23 +24,12 @@ class ChefOrderController extends Controller
 
             $orders = $this->orderService->getOrders(
                 $request->input('per_page'),
-                true // ✅ Chef NO debe ver items completados (status_id = 4)
+                true // ✅ Chef NO debe ver items completados
             );
 
-            // ✅ Aplicar lógica de presentación para el chef
-            $orders->getCollection()->transform(function ($order) {
-                $order->selectAll = false;
-
-                $order->setRelation('orderItems', $order->orderItems->map(function ($item) {
-                    $item->checked = false;
-                    return $item;
-                }));
-
-                return $order;
-            });
-
             return ApiResponse::success([
-                'orders' => $orders
+                'orders' => $orders,
+                'pendingOrders' => $this->orderService->pendingOrdersCount(),
             ]);
 
         } catch (\Throwable $th) {

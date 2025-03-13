@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Models\OrderStatus;
+use Illuminate\Support\Facades\Log;
 
 class OrderService
 {
@@ -23,6 +25,9 @@ class OrderService
                 ->with('orderItemStatus')
                 ->orderBy('id', 'ASC');
         }])
+            ->when($excludeCompleted, function ($query) {
+                $query->where('order_status_id', '!=', OrderStatus::COMPLETED);
+            })
             ->select(
                 'id',
                 'folio',
@@ -34,13 +39,10 @@ class OrderService
             )
             ->orderBy('id', 'ASC');
 
-        // ✅ Excluir órdenes donde todos los items están completados
-        if ($excludeCompleted) {
-            $query->whereHas('orderItems', function ($query) {
-                $query->where('status_id', '<>', 4);
-            });
-        }
-
         return $query->simplePaginate($rowsPerPage);
+    }
+
+    public function pendingOrdersCount() {
+       return Order::where('order_status_id', '!=', OrderStatus::COMPLETED)->count();
     }
 }

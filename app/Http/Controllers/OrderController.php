@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
+use App\Events\OrdersUpdated;
 use App\Services\OrderService;
 use App\Events\OrderItemsUpdated;
 use App\Events\WaiterEditingOrder;
@@ -70,7 +71,6 @@ class OrderController extends Controller
                     'quantity' => $item['quantity'],
                     'price' => $item['dish']['price'],
                     'dish_name' => $item['dish']['name'],
-                    'dish_name' => $item['dish']['name'],
                     'observations' => $item['observations'] ?? null,
                     'status_id' => OrderItem::STATUS_IN_KITCHEN,
                 ]);
@@ -79,6 +79,14 @@ class OrderController extends Controller
             }
 
             $order->update(['total_amount' => $total]);
+        
+            $order->load([
+                'orderItems.orderItemStatus',
+                'table'
+            ]);
+            
+
+            broadcast(new OrdersUpdated($order))->toOthers();
 
             DB::commit();
 

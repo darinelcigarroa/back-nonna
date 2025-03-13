@@ -22,6 +22,13 @@ class OrderItem extends Model
         'status_id'
     ];
 
+    protected $appends = ['checked'];
+
+    public function getCheckedAttribute()
+    {
+        return $this->attributes['checked'] ?? false;
+    }
+
     public function order()
     {
         return $this->belongsTo(Order::class);

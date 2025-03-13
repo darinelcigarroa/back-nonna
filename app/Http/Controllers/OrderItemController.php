@@ -8,6 +8,7 @@ use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Events\OrderItemsUpdated;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Actions\UpdateOrderItemStatusAction;
 
@@ -80,6 +81,7 @@ class OrderItemController extends Controller
     public function updateDishStatus(Request $request)
     {
         try {
+            DB::beginTransaction();
             $result = $this->updateOrderItemStatusAction->execute(
                 $request->input('orderItems'),
                 $request->input('status_id')
@@ -91,13 +93,15 @@ class OrderItemController extends Controller
                     'message' => $result['message']
                 ], 409);
             }
-
+            DB::commit();
             return ApiResponse::success(
                 $result['data'],
                 $result['message']
             );
 
         } catch (\Throwable $th) {
+            Log::error($th);
+            DB::rollBack();
             return ApiResponse::error('Error interno al actualizar el platillo', 500);
         }
     }    

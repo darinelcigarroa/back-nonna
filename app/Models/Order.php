@@ -22,7 +22,7 @@ class Order extends Model
         'total_amount',
     ];
 
-    protected $appends = ['formatted_date', 'formatted_time'];
+    protected $appends = ['formatted_date', 'formatted_time', 'selectAll'];
 
     public function getFormattedDateAttribute()
     {
@@ -32,6 +32,10 @@ class Order extends Model
     public function getFormattedTimeAttribute()
     {
         return $this->created_at ? $this->created_at->format('H:i:s A') : null;
+    }
+
+    public function getSelectAllAttribute() {
+        return $this->attributes['selectAll'] ?? false;
     }
 
     public static function generateUniqueFolio()
