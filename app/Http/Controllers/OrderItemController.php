@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\OrderItem;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
+use App\Events\OrderItemDeleted;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Actions\UpdateOrderItemStatusAction;
-use App\Events\OrderItemDeleted;
+use App\Http\Requests\DeleteOrderItemRequest;
 
 class OrderItemController extends Controller
 {
@@ -65,15 +66,14 @@ class OrderItemController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(OrderItem $orderItem)
+    public function destroy(Request $request, OrderItem $orderItem)
     {
         try {
-            $ordersAvailable = OrderItem::where('order_id', $orderItem->order_id)->count();
-           
-            if ($ordersAvailable == 1) {
-                return ApiResponse::error('La orden debe de tener al menos un platillo', 500);
+              
+            if ($orderItem->order->orderItems->count() <= 1) {
+                return ApiResponse::error('La orden debe de tener al menos un platillo', 403);
             }
-
+        
             $orderItem->delete();
             broadcast(new OrderItemDeleted($orderItem->only(['id', 'order_id'])));
 
