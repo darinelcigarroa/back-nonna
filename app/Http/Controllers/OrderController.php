@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\Order;
-use App\Models\OrderItem;
 use App\Models\OrderStatus;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
@@ -68,12 +67,12 @@ class OrderController extends Controller
             ]);
 
             foreach ($request->orders as $item) {
-
                 $orderItem = $order->orderItems()->create([
                     'dish_id' => $item['dish']['id'],
                     'quantity' => $item['quantity'],
                     'price' => $item['dish']['price'],
                     'dish_name' => $item['dish']['name'],
+                    'dish_type' => $item['typeDish']['name'],
                     'observations' => $item['observations'] ?? null,
                     'status_id' => OrderItemStatus::STATUS_IN_KITCHEN,
                 ]);

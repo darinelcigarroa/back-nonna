@@ -13,31 +13,30 @@ class OrderService
     {
         $userId = Auth::id();
 
-        $query = Order::with(['table', 'orderItems' => function ($query)  {
+        $query = Order::with(['table', 'orderItems' => function ($query) {
             $query->select(
                 'id',
                 'dish_id',
                 'quantity',
-                'price',
                 'dish_name',
+                'dish_type',
                 'observations',
                 'status_id',
                 'order_id',
                 'updated_at'
             )
-                ->with('orderItemStatus')
+                ->with(['orderItemStatus:id,name'])
                 ->orderBy('id', 'ASC');
         }])
             ->when($chef, function ($query) {
                 $query->where('order_status_id', '!=', OrderStatus::COMPLETED);
             })
-            ->when(!$chef, function ($query) use ($userId){
+            ->when(!$chef, function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
             ->select(
                 'id',
                 'folio',
-                'num_dinners',
                 'order_status_id',
                 'table_id',
                 'total_amount',
@@ -48,7 +47,8 @@ class OrderService
         return $query->simplePaginate($rowsPerPage);
     }
 
-    public function pendingOrdersCount() {
-       return Order::where('order_status_id', '!=', OrderStatus::COMPLETED)->count();
+    public function pendingOrdersCount()
+    {
+        return Order::where('order_status_id', '!=', OrderStatus::COMPLETED)->count();
     }
 }

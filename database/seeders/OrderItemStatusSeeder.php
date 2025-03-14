@@ -13,9 +13,10 @@ class OrderItemStatusSeeder extends Seeder
      */
     public function run(): void
     {
-        OrderItemStatus::create(['name' => 'Entrada']);
-        OrderItemStatus::create(['name' => 'Plato Fuerte']);
-        OrderItemStatus::create(['name' => 'Postre']);
-        OrderItemStatus::create(['name' => 'Bebida']);
+        OrderItemStatus::create(['name' => 'Creado']);
+        OrderItemStatus::create(['name' => 'En cocina']);
+        OrderItemStatus::create(['name' => 'En preparacion']);
+        OrderItemStatus::create(['name' => 'Listo para servir']);
+        OrderItemStatus::create(['name' => 'Cancelado']);
     }
 }

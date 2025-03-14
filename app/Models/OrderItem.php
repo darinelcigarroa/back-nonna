@@ -15,6 +15,7 @@ class OrderItem extends Model
         'quantity',
         'price',
         'dish_name',
+        'dish_type',
         'observations',
         'status_id'
     ];
@@ -35,7 +36,6 @@ class OrderItem extends Model
         return $this->belongsTo(Dish::class);
     }
     
-    // Este estatus es el del OrderItem, no el del platillos dish_statuses
     public function orderItemStatus()
     {
         return $this->belongsTo(OrderItemStatus::class, 'status_id');

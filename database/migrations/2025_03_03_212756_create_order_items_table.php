@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('dish_id')->constrained()->onDelete('set null');
             $table->integer('quantity')->default(1);
             $table->string('dish_name');
+            $table->string('dish_type');
             $table->decimal('price', 10, 2);
             $table->foreignId('status_id')->constrained('order_item_statuses')->default(1);
             $table->string('observations', 255)->nullable();

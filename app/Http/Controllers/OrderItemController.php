@@ -9,7 +9,6 @@ use App\Events\OrderItemDeleted;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Actions\UpdateOrderItemStatusAction;
-use App\Http\Requests\DeleteOrderItemRequest;
 
 class OrderItemController extends Controller
 {
@@ -88,7 +87,6 @@ class OrderItemController extends Controller
     {
         try {
             DB::beginTransaction();
-            Log::info('updateDishStatus');
             $result = $this->updateOrderItemStatusAction->execute(
                 $request->input('orderItems'),
                 $request->input('status_id')

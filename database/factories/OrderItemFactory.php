@@ -21,13 +21,15 @@ class OrderItemFactory extends Factory
      */
     public function definition(): array
     {
-        $dish = Dish::inRandomOrder()->first();
+        $dish = Dish::with('dishType:id,name')->inRandomOrder()->first();
+
         return [
             'order_id' => Order::factory(),
             'dish_id' => $dish->id,
             'quantity' => $this->faker->numberBetween(1, 5),
             'price' => $dish->price,
             'dish_name' => $dish->name,
+            'dish_type' => $dish->dishType->name,
             'observations' => $this->faker->sentence,
             'status_id' => OrderItemStatus::STATUS_IN_KITCHEN
         ];

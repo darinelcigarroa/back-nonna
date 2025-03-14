@@ -23,6 +23,5 @@ Broadcast::channel('orders-updated', function ($user) {
 });
 
 Broadcast::channel('order-item-deleted', function ($user) {
-    Log::info('Auth User:', [$user]);
     return $user->hasRole(['chef', 'waiter']);
 });
