@@ -13,6 +13,12 @@ class TableSeeder extends Seeder
      */
     public function run(): void
     {
-        Table::factory()->count(10)->create();
+        foreach(range(1,20) as $number) {
+            Table::create([
+                'name' => "Mesa $number",
+                'capacity' => random_int(1, 5),
+                'status' => false
+            ]);
+        }
     }
 }

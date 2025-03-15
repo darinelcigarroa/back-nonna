@@ -19,9 +19,11 @@ class OrderFactory extends Factory
      */
     public function definition(): array
     {
+        $table = Table::inRandomOrder()->first();
+
         return [
             'folio' => $this->faker->unique()->numerify('ORD###'),
-            'table_id' => Table::factory(),
+            'table_id' => $table->id,
             'num_dinners' => $this->faker->numberBetween(1, 10),
             'user_id' => User::factory(),
             'order_status_id' => OrderStatus::PENDING,

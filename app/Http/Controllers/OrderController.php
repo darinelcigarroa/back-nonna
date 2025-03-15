@@ -67,13 +67,15 @@ class OrderController extends Controller
             ]);
 
             foreach ($request->orders as $item) {
+                Log::info($item);
+
                 $orderItem = $order->orderItems()->create([
                     'dish_id' => $item['dish']['id'],
                     'quantity' => $item['quantity'],
                     'price' => $item['dish']['price'],
                     'dish_name' => $item['dish']['name'],
                     'dish_type' => $item['typeDish']['name'],
-                    'observations' => $item['observations'] ?? null,
+                    'observations' => json_encode($item['observations']),
                     'status_id' => OrderItemStatus::STATUS_IN_KITCHEN,
                 ]);
 
@@ -81,12 +83,12 @@ class OrderController extends Controller
             }
 
             $order->update(['total_amount' => $total]);
-        
+
             $order->load([
                 'orderItems.orderItemStatus',
                 'table'
             ]);
-            
+
 
             broadcast(new OrdersUpdated($order))->toOthers();
 
@@ -160,6 +162,7 @@ class OrderController extends Controller
             $updatedItems = [];
 
             foreach ($request->orders as $item) {
+                Log::info($item);
                 $status = $item['status_id'] == OrderItemStatus::STATUS_CREATED ? OrderItemStatus::STATUS_IN_KITCHEN : $item['status_id'];
                 $updatedItem = $order->orderItems()->updateOrCreate(
                     ['id' => $item['id'] ?? null],
@@ -168,6 +171,7 @@ class OrderController extends Controller
                         'quantity' => $item['quantity'],
                         'price' => $item['dish']['price'],
                         'dish_name' => $item['dish']['name'],
+                        'dish_type' => 'ok',
                         'observations' => $item['observations'] ?? null,
                         'status_id' => $status
                     ]
@@ -197,9 +201,9 @@ class OrderController extends Controller
     {
         try {
             $this->authorize('delete', Order::class);
-            
+
             $order->delete();
-            
+
             return ApiResponse::success(['message' => 'Orden eliminada correctamente']);
         } catch (Exception $e) {
             Log::error($e);

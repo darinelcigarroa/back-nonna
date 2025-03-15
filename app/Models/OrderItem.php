@@ -20,6 +20,10 @@ class OrderItem extends Model
         'status_id'
     ];
 
+    protected $casts = [
+        'observations' => 'array',
+    ];
+    
     protected $appends = ['checked'];
 
     public function getCheckedAttribute()
