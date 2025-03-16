@@ -24,11 +24,16 @@ class OrderItem extends Model
         'observations' => 'array',
     ];
     
-    protected $appends = ['checked'];
+    protected $appends = ['checked', 'showObservations'];
 
     public function getCheckedAttribute()
     {
         return $this->attributes['checked'] ?? false;
+    }
+
+    public function getShowObservationsAttribute()
+    {
+        return $this->attributes['showObservations'] ?? false;
     }
 
     public function order()
