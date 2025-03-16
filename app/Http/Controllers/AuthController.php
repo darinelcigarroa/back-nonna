@@ -6,6 +6,7 @@ use Exception;
 use App\Models\User;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
@@ -94,24 +95,32 @@ class AuthController extends Controller
     public function updatePassword(Request $request)
     {
         try {
+            Log::info($request->all());
             $request->validate([
-                'current_password' => 'required',
-                'new_password' => 'required|min:6|confirmed',
+                'currentPassword' => 'required',
+                'newPassword' => 'required',
+                'newPassword_confirmation' => 'required',
             ]);
 
             $user = $request->user();
 
-            if (!Hash::check($request->current_password, $user->password)) {
+            if (!Hash::check($request->currentPassword, $user->password)) {
                 return ApiResponse::error('La contraseña actual no es correcta', 400);
             }
 
-            $user->password = Hash::make($request->new_password);
+            if ($request->newPassword !== $request->newPassword_confirmation) {
+                return ApiResponse::error('Las contraseñas no coinciden', 400);
+            }
+
+            $user->password = Hash::make($request->newPassword);
             $user->save();
 
             return ApiResponse::success([], 'Contraseña actualizada correctamente');
         } catch (ValidationException $e) {
+            Log::error($e);
             return ApiResponse::error('Error de validación', 422, $e->errors());
         } catch (Exception $e) {
+            Log::error($e);
             return ApiResponse::error('Error interno al actualizar contraseña', 500);
         }
     }
