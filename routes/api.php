@@ -7,6 +7,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\DishTypeController;
 use App\Http\Controllers\ChefOrderController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\UserController;
 use Spatie\Permission\Contracts\Role;
@@ -21,6 +22,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('catalogs')->group(function () {
         Route::resource('tables', TableController::class)->except('create', 'edit', 'show');
         Route::resource('dish-types', DishTypeController::class)->except('create', 'edit', 'show');
+    });
+
+    Route::prefix('admin')->group(function () {
+        Route::resource('employee', EmployeeController::class)->except('create', 'edit', 'show');
     });
     // USER
     Route::resource('user', UserController::class);

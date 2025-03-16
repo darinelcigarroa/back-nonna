@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
@@ -18,30 +19,27 @@ class UserSeeder extends Seeder
         $userSuperAdmin = User::updateOrCreate(
             ['email' => 'admin@admin.com'],
             [
-                'name' => 'Mario',
-                'first_surname' => 'Cantú',
-                'second_surname' => 'González',
+                'user_name' => 'Mario',
                 'email' => 'admin@admin.com',
+                'employee_id' => Employee::inRandomOrder()->first()->id,
                 'password' => Hash::make('123'),
             ]
         );
         $userWaiter = User::updateOrCreate(
             ['email' => 'mesero@mesero.com'],
             [
-                'name' => 'Mesero 1',
-                'first_surname' => 'Cigarroa',
-                'second_surname' => 'de los Santos',
+                'user_name' => 'Mesero 1',
                 'email' => 'mesero@mesero.com',
+                'employee_id' => Employee::inRandomOrder()->first()->id,
                 'password' => Hash::make('123'),
             ]
         );
         $userChef = User::updateOrCreate(
             ['email' => 'chef@chef.com'],
             [
-                'name' => 'Chef 1',
-                'first_surname' => 'Wilner',
-                'second_surname' => 'Sanches',
+                'user_name' => 'Chef 1',
                 'email' => 'chef@chef.com',
+                'employee_id' => Employee::inRandomOrder()->first()->id,
                 'password' => Hash::make('123'),
             ]
         );

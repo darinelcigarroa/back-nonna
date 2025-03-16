@@ -95,7 +95,6 @@ class AuthController extends Controller
     public function updatePassword(Request $request)
     {
         try {
-            Log::info($request->all());
             $request->validate([
                 'currentPassword' => 'required',
                 'newPassword' => 'required',
