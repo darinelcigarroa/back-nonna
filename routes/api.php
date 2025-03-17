@@ -9,8 +9,8 @@ use App\Http\Controllers\DishTypeController;
 use App\Http\Controllers\ChefOrderController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OrderItemController;
+use App\Http\Controllers\PositionController;
 use App\Http\Controllers\UserController;
-use Spatie\Permission\Contracts\Role;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('catalogs')->group(function () {
         Route::resource('tables', TableController::class)->except('create', 'edit', 'show');
         Route::resource('dish-types', DishTypeController::class)->except('create', 'edit', 'show');
+        Route::resource('positions', PositionController::class)->except('create', 'edit', 'show');
     });
 
     Route::prefix('admin')->group(function () {

@@ -2,26 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\ApiResponse;
-use App\Models\Employee;
 use Exception;
+use App\Models\User;
+use App\Models\Employee;
+use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class EmployeeController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $employee = Employee::select('name','first_surname','second_surname','position_id','salary')->get();
-            return ApiResponse::success([$employee], 'Operación exitosa');
+            $rowsPerPage = $request->get('rowsPerPage', 10);
+            $page = $request->get('page', 1);
+    
+            $employee = Employee::with('position:id,name')->select(
+                'name',
+                'first_surname',
+                'second_surname',
+                'position_id',
+                'salary'
+            )->orderBy('id', 'DESC')->paginate($rowsPerPage, ['*'], 'page', $page);
+    
+            return ApiResponse::success(['employees' => $employee], 'Operación exitosa');
         } catch (Exception $th) {
+            Log::error($th);
             return ApiResponse::error('Error interno al obtener los empleados');
         }
-    }
-
+    }    
     /**
      * Show the form for creating a new resource.
      */
@@ -35,9 +47,31 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $employee = new Employee();
+            $employee->fill($request->all());
+            $employee->save();
+
+            $userName = $this->generateUserName($employee);
+
+            User::create([
+                'user_name' => $userName,
+                'email' => $employee->email,
+                'password' => bcrypt($userName),
+                'employee_id' => $employee->id,
+            ]);
+    
+            return ApiResponse::success(['employee' => $employee], 'Empleado creado exitosamente');
+        } catch (Exception $th) {
+            Log::error($th);
+            return ApiResponse::error('Error interno al obtener los empleados');
+        }
     }
 
+    public function generateUserName($employee) {
+        $firstName = explode(' ', $employee->name)[0];
+        return strtolower($firstName) . $employee->id;
+    }
     /**
      * Display the specified resource.
      */
