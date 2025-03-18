@@ -125,6 +125,12 @@ class EmployeeController extends Controller
      */
     public function destroy(Employee $employee)
     {
-        //
+        try {
+            $employee->delete();
+            return ApiResponse::success(['employee' => $employee], 'Empleado eliminado exitosamente');
+        } catch (Exception $e) {
+            $this->logError($e);
+            return ApiResponse::error('Error interno al eliminar el empleado');
+        }
     }
 }
