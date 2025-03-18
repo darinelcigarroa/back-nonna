@@ -4,16 +4,15 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\User;
+use App\Traits\Loggable;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Validation\ValidationException;
-
 class AuthController extends Controller
 {
+    use Loggable;
     /**
      * Registro de usuario
      */
@@ -21,18 +20,15 @@ class AuthController extends Controller
     {
         try {
             $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
-                'password' => 'required|string|min:6|confirmed',
+                'user_name' => 'required',
+                'password' => 'required'
             ]);
+
 
             $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
+                'user_name' => $request->name,
                 'password' => Hash::make($request->password),
             ]);
-
-            event(new Registered($user));
 
             return ApiResponse::success([
                 'user' => $user,
@@ -42,6 +38,7 @@ class AuthController extends Controller
         } catch (ValidationException $e) {
             return ApiResponse::error('Error de validación', 422, $e->errors());
         } catch (Exception $e) {
+            $this->logError($e);
             return ApiResponse::error('Error interno al registrar usuario', 500);
         }
     }
@@ -53,14 +50,14 @@ class AuthController extends Controller
     {
         try {
             $credentials = $request->validate([
-                'email' => 'required|email',
+                'user_name' => 'required',
                 'password' => 'required'
             ]);
 
-            if (!Auth::attempt($credentials)) {
+            if (!Auth::attempt(['user_name' => $credentials['user_name'], 'password' => $credentials['password']])) {
                 return ApiResponse::error('Credenciales incorrectas', 401);
             }
-
+    
             $user = User::find(Auth::id());
 
             return ApiResponse::success([
@@ -72,6 +69,7 @@ class AuthController extends Controller
         } catch (ValidationException $e) {
             return ApiResponse::error('Error de validación', 422, $e->errors());
         } catch (Exception $e) {
+            $this->logError($e);
             return ApiResponse::error('Error interno al procesar el login', 500);
         }
     }
@@ -85,6 +83,7 @@ class AuthController extends Controller
             $request->user()->tokens()->delete();
             return ApiResponse::success([], 'Sesión cerrada correctamente');
         } catch (Exception $e) {
+            $this->logError($e);
             return ApiResponse::error('Error al cerrar sesión', 500);
         }
     }
@@ -116,10 +115,9 @@ class AuthController extends Controller
 
             return ApiResponse::success([], 'Contraseña actualizada correctamente');
         } catch (ValidationException $e) {
-            Log::error($e);
             return ApiResponse::error('Error de validación', 422, $e->errors());
         } catch (Exception $e) {
-            Log::error($e);
+            $this->logError($e);
             return ApiResponse::error('Error interno al actualizar contraseña', 500);
         }
     }
