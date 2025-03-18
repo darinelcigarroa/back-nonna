@@ -1,22 +1,20 @@
 <?php
 
-namespace App\Traits\Logging;
+namespace App\Traits;
 
+use Exception;
 use Illuminate\Support\Facades\Log;
 
 trait Loggable
 {
-    public function logError($message, $exception = null, $extraData = [])
+    public function logError(Exception $exception)
     {
-        $logData = array_merge([
-            'error_message' => $exception ? $exception->getMessage() : $message,
-            'file' => $exception ? $exception->getFile() : null,
-            'line' => $exception ? $exception->getLine() : null,
+        Log::error($exception->getMessage(), [
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine(),
             'class' => __CLASS__,
             'method' => debug_backtrace()[1]['function'] ?? null,
-            'stack_trace' => $exception ? $exception->getTraceAsString() : null,
-        ], $extraData);
-
-        Log::error($message, $logData);
+            'stack_trace' => $exception->getTraceAsString(),
+        ]);
     }
 }

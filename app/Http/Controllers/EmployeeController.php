@@ -7,10 +7,13 @@ use App\Models\User;
 use App\Models\Employee;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use App\Traits\Loggable;
+use Spatie\Permission\Models\Role;
 
 class EmployeeController extends Controller
 {
+    use Loggable;
+
     /**
      * Display a listing of the resource.
      */
@@ -19,21 +22,22 @@ class EmployeeController extends Controller
         try {
             $rowsPerPage = $request->get('rowsPerPage', 10);
             $page = $request->get('page', 1);
-    
+
             $employee = Employee::with('position:id,name')->select(
+                'id',
                 'name',
                 'first_surname',
                 'second_surname',
                 'position_id',
                 'salary'
             )->orderBy('id', 'DESC')->paginate($rowsPerPage, ['*'], 'page', $page);
-    
+
             return ApiResponse::success(['employees' => $employee], 'Operación exitosa');
-        } catch (Exception $th) {
-            Log::error($th);
+        } catch (Exception $e) {
+            $this->logError($e);
             return ApiResponse::error('Error interno al obtener los empleados');
         }
-    }    
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -60,15 +64,22 @@ class EmployeeController extends Controller
                 'password' => bcrypt($userName),
                 'employee_id' => $employee->id,
             ]);
-    
+            
+            $employee->load('position');
+
+            $role = Role::where('name', $employee->position->name)->first();
+
+            $employee->user->assignRole($role);
+
             return ApiResponse::success(['employee' => $employee], 'Empleado creado exitosamente');
-        } catch (Exception $th) {
-            Log::error($th);
+        } catch (Exception $e) {
+            $this->logError($e);
             return ApiResponse::error('Error interno al obtener los empleados');
         }
     }
 
-    public function generateUserName($employee) {
+    public function generateUserName($employee)
+    {
         $firstName = explode(' ', $employee->name)[0];
         return strtolower($firstName) . $employee->id;
     }
@@ -93,7 +104,20 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, Employee $employee)
     {
-        //
+        try {
+            $employee->fill($request->all());
+            $employee->save();
+            $employee->load('position');
+
+            $role = Role::where('name', $employee->position->name)->first();
+
+            $employee->user->assignRole($role);
+
+            return ApiResponse::success(['employee' => $employee], 'Empleado actualizado exitosamente');
+        } catch (Exception $e) {
+            $this->logError($e);
+            return ApiResponse::error('Error interno al obtener los empleados');
+        }
     }
 
     /**
