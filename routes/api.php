@@ -20,7 +20,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('update-password', [AuthController::class, 'updatePassword']);
 
     Route::prefix('catalogs')->group(function () {
-        Route::resource('tables', TableController::class)->except('create', 'edit', 'show');
+        Route::resource('table', TableController::class)->except('create', 'edit', 'show');
         Route::resource('dish-types', DishTypeController::class)->except('create', 'edit', 'show');
         Route::resource('positions', PositionController::class)->except('create', 'edit', 'show');
     });

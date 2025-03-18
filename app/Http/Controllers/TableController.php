@@ -2,33 +2,53 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\ApiResponse;
 use Exception;
 use App\Models\Table;
+use App\Traits\Loggable;
+use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 
 class TableController extends Controller
 {
+    use Loggable;
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            return ApiResponse::success([
-                'tables' => Table::select('id', 'name', 'status')->get(),
-            ]);
-        } catch (Exception $th) {
-            return ApiResponse::error('Error interno al obtener las mesas', 500);
+            $rowsPerPage = $request->get('rowsPerPage', 10);
+            $page = $request->get('page', 1);
+
+            $tables = Table::select(
+                'id',
+                'name',
+                'capacity',
+                'status'
+            )->orderBy('id', 'DESC')->paginate($rowsPerPage, ['*'], 'page', $page);
+
+            return ApiResponse::success(['tables' => $tables], 'Operación exitosa');
+        } catch (Exception $e) {
+            $this->logError($e);
+            return ApiResponse::error('Error interno al obtener las mesas');
         }
     }
-
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $table = new Table();
+            $table->fill($request->all());
+            $table->save();
+
+            return ApiResponse::success(['table' => $table], 'Operación exitosa');
+        } catch (Exception $e) {
+            $this->logError($e);
+            return ApiResponse::error('Error interno al guardar la mesa');
+        }
     }
 
     /**
@@ -44,7 +64,15 @@ class TableController extends Controller
      */
     public function update(Request $request, Table $table)
     {
-        //
+        try {
+            $table->fill($request->all());
+            $table->save();
+ 
+             return ApiResponse::success(['table' => $table], 'Operación exitosa');
+         } catch (Exception $e) {
+             $this->logError($e);
+             return ApiResponse::error('Error interno al actualizar la mesa');
+         }
     }
 
     /**
@@ -52,6 +80,13 @@ class TableController extends Controller
      */
     public function destroy(Table $table)
     {
-        //
+        try {
+            $table->delete();
+ 
+             return ApiResponse::success(['table' => $table], 'Operación exitosa');
+         } catch (Exception $e) {
+             $this->logError($e);
+             return ApiResponse::error('Error interno al elimnar la mesa');
+         }
     }
 }
