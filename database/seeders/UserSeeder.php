@@ -16,12 +16,14 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        User::factory()->count(5)->create();
+
         $userSuperAdmin = User::updateOrCreate(
             ['email' => 'admin@admin.com'],
             [
                 'user_name' => 'Mario',
                 'email' => 'admin@admin.com',
-                'employee_id' => Employee::inRandomOrder()->first()->id,
+                'employee_id' => Employee::factory()->create()->id,
                 'password' => Hash::make('123'),
             ]
         );
@@ -30,7 +32,7 @@ class UserSeeder extends Seeder
             [
                 'user_name' => 'Mesero 1',
                 'email' => 'mesero@mesero.com',
-                'employee_id' => Employee::inRandomOrder()->first()->id,
+                'employee_id' => Employee::factory()->create()->id,
                 'password' => Hash::make('123'),
             ]
         );
@@ -39,7 +41,7 @@ class UserSeeder extends Seeder
             [
                 'user_name' => 'Chef 1',
                 'email' => 'chef@chef.com',
-                'employee_id' => Employee::inRandomOrder()->first()->id,
+                'employee_id' => Employee::factory()->create()->id,
                 'password' => Hash::make('123'),
             ]
         );
@@ -47,5 +49,6 @@ class UserSeeder extends Seeder
         $userSuperAdmin->assignRole(Role::where('name', 'super-admin')->first());
         $userWaiter->assignRole(Role::where('name', 'waiter')->first());
         $userChef->assignRole(Role::where('name', 'chef')->first());
+
     }
 }

@@ -20,12 +20,13 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         $table = Table::inRandomOrder()->first();
+        $user = User::role('waiter')->inRandomOrder()->first();
 
         return [
             'folio' => $this->faker->unique()->numerify('ORD###'),
             'table_id' => $table->id,
             'num_dinners' => $this->faker->numberBetween(1, 10),
-            'user_id' => User::factory(),
+            'user_id' => $user->id,
             'order_status_id' => OrderStatus::PENDING,
             'total_amount' => 0, // Se recalcula después de los order items
         ];

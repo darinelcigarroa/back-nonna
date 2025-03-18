@@ -16,9 +16,10 @@ return new class extends Migration
             $table->string('folio')->unique();
             $table->unsignedInteger('num_dinners')->nullable();
             $table->decimal('total_amount', 10, 2)->default(0);
-            $table->foreignId('table_id')->constrained();
             $table->foreignId('order_status_id')->constrained();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('table_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+
 
             $table->timestamps();
         });
