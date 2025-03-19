@@ -58,7 +58,7 @@ class AuthController extends Controller
                 return ApiResponse::error('Credenciales incorrectas', 401);
             }
     
-            $user = User::find(Auth::id());
+            $user = User::with('employee')->find(Auth::id());
 
             return ApiResponse::success([
                 'user' => $user,

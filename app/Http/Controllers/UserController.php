@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\User;
+use App\Models\Employee;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -58,6 +59,9 @@ class UserController extends Controller
         try {
             $user->fill($request->all());
             $user->save();
+            $employee = Employee::find($user->employee_id);
+            $employee->fill($request->employee);
+            $employee->save();
 
             return ApiResponse::success([], 'Usuario actualizado correctamente');
         } catch (Exception $th) {

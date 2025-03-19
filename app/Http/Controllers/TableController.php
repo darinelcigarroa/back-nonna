@@ -89,4 +89,20 @@ class TableController extends Controller
              return ApiResponse::error('Error interno al elimnar la mesa');
          }
     }
+    public function getTables()
+    {
+        try {
+            $tables = Table::select(
+                'id',
+                'name',
+                'capacity',
+                'status'
+            )->orderBy('id', 'ASC')->get();
+
+            return ApiResponse::success(['tables' => $tables], 'Operación exitosa');
+        } catch (Exception $e) {
+            $this->logError($e);
+            return ApiResponse::error('Error interno al obtener las mesas');
+        }
+    }
 }

@@ -96,7 +96,7 @@ class DishController extends Controller
         /**
      * Display a listing of the resource.
      */
-    public function dishes(Request $request)
+    public function getDishes(Request $request)
     {
         try {
             $dishes = Dish::when($request->has('typeDish'), function ($query) use ($request) {
