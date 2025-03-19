@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::resource('table', TableController::class)->except('create', 'edit', 'show');
         Route::resource('dish-types', DishTypeController::class)->except('create', 'edit', 'show');
         Route::resource('positions', PositionController::class)->except('create', 'edit', 'show');
+        Route::resource('dish', DishController::class)->except('create', 'show');
     });
 
     Route::prefix('admin')->group(function () {
@@ -36,9 +37,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // ORDER ITEMS
     Route::resource('order-item', OrderItemController::class)->except('create', 'show');
     Route::patch('order-items/update-dish-status', [OrderItemController::class, 'updateDishStatus']);
-    // DISH
-    Route::resource('dishes', DishController::class)->except('create', 'show');
     // CHEF
     Route::get('chef/orders', [ChefOrderController::class, 'index']);
-
 });
