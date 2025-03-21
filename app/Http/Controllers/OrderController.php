@@ -4,23 +4,25 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\Order;
+use App\Traits\Loggable;
 use App\Models\OrderStatus;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use App\Events\OrdersUpdated;
 use App\Services\OrderService;
+use App\Models\OrderItemStatus;
 use App\Events\OrderItemsUpdated;
 use App\Events\WaiterEditingOrder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use App\Http\Controllers\Controller;
-use App\Models\OrderItemStatus;
 
 class OrderController extends Controller
 {
     use AuthorizesRequests;
+    use Loggable;
 
     /**
      * Display a listing of the resource.
@@ -30,7 +32,8 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         try {
-            $this->authorize('viewAny', Order::class);
+            $this->authorize('viewAny', Order::class); // ✅ Solo pasamos la re
+
 
             $orders = $this->orderService->getOrders(
                 $request->input('per_page'),
@@ -40,7 +43,8 @@ class OrderController extends Controller
             return ApiResponse::success([
                 'orders' => $orders
             ]);
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
+            $this->logError($e);
             return ApiResponse::error('Error interno al obtener las órdenes', 500);
         }
     }
@@ -51,7 +55,7 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         try {
-            $this->authorize('create', Order::class);
+            $this->authorize('create');
 
             DB::beginTransaction();
             $folio = Order::generateUniqueFolio();
@@ -67,8 +71,6 @@ class OrderController extends Controller
             ]);
 
             foreach ($request->orders as $item) {
-                Log::info($item);
-
                 $orderItem = $order->orderItems()->create([
                     'dish_id' => $item['dish']['id'],
                     'quantity' => $item['quantity'],
@@ -118,7 +120,7 @@ class OrderController extends Controller
     public function edit(Order $order)
     {
         try {
-            $this->authorize('edit', Order::class);
+            $this->authorize('edit', $order);
 
             $order->update([
                 'order_status_id' => OrderStatus::EDITING
@@ -155,7 +157,7 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         try {
-            // $this->authorize('update', Order::class);
+            $this->authorize('update', $order);
 
             DB::beginTransaction();
 
@@ -200,7 +202,7 @@ class OrderController extends Controller
     public function destroy(order $order)
     {
         try {
-            $this->authorize('delete', Order::class);
+            $this->authorize('delete', $order);
 
             $order->delete();
 
@@ -229,6 +231,26 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             Log::error($e);
             return ApiResponse::error('Error al cancelar edición, avisar al administrador', 500);
+        }
+    }
+    public function payOrder(Request $request, Order $order)
+    {
+        try {
+            Log::info('request', [$request->order['paymentType']['id']]);
+            // Log::info($order);
+            $this->authorize('payOrder', $order);
+
+            $order->update([
+                'payment_type_id' => $request->order['paymentType']['id'],
+                'payment_type_name' => $request->order['paymentType']['name'],
+                'order_status_id' => OrderStatus::COMPLETED
+            ]);
+
+
+            return ApiResponse::success(null, 'Orden pagada correctamente');
+        } catch (\Exception $e) {
+            Log::error($e);
+            return ApiResponse::error('Error interno al pagar la orden', 500);
         }
     }
 }

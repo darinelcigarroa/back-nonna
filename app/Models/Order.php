@@ -17,6 +17,8 @@ class Order extends Model
         'user_id',
         'table_id',
         'total_amount',
+        'payment_type_id',
+        'payment_type_name',
     ];
 
     protected $appends = ['formatted_date', 'formatted_time', 'selectAll'];
@@ -69,5 +71,10 @@ class Order extends Model
     public function orderStatus()
     {
         return $this->belongsTo(OrderStatus::class);
+    }
+
+    public function paymentType()
+    {
+        return $this->belongsTo(PaymentType::class);
     }
 }

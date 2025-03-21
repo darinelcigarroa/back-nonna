@@ -17,9 +17,10 @@ return new class extends Migration
             $table->unsignedInteger('num_dinners')->nullable();
             $table->decimal('total_amount', 10, 2)->default(0);
             $table->foreignId('order_status_id')->constrained();
+            $table->string('payment_type_name')->nullable();
+            $table->foreignId('payment_type_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('table_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
-
 
             $table->timestamps();
         });

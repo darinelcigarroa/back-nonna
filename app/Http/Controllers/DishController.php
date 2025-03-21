@@ -10,9 +10,8 @@ use Illuminate\Http\Request;
 
 class DishController extends Controller
 {
-
     use Loggable;
-
+    
     /**
      * Display a listing of the resource.
      */

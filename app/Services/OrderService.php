@@ -13,7 +13,7 @@ class OrderService
     {
         $userId = Auth::id();
 
-        $query = Order::with(['table', 'orderItems' => function ($query) {
+        $query = Order::with(['table', 'orderStatus:id,name', 'orderItems' => function ($query) {
             $query->select(
                 'id',
                 'dish_id',
@@ -23,14 +23,12 @@ class OrderService
                 'observations',
                 'status_id',
                 'order_id',
-                'updated_at'
+                'updated_at',
+                'price',
             )
                 ->with(['orderItemStatus:id,name'])
                 ->orderBy('id', 'ASC');
-        }])
-            ->when($chef, function ($query) {
-                $query->where('order_status_id', '!=', OrderStatus::COMPLETED);
-            })
+        }])->where('order_status_id', '!=', OrderStatus::COMPLETED)
             ->when(!$chef, function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             })

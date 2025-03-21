@@ -58,11 +58,14 @@ class AuthController extends Controller
                 return ApiResponse::error('Credenciales incorrectas', 401);
             }
     
-            $user = User::with('employee')->find(Auth::id());
+            $user = User::with('employee','orders:id,folio,user_id,table_id', 'orders.table:id,name')->find(Auth::id());
+
+            $user->orders->makeHidden($user->orders->first()?->getAppends());
 
             return ApiResponse::success([
                 'user' => $user,
                 'roles' => $user->roles->pluck('name'),
+                'orders' => $user->roles->pluck('name'),
                 'token' => $user->createToken('auth_token')->plainTextToken,
             ], 'Has iniciado sesión');
 

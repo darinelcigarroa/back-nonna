@@ -3,15 +3,15 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DishController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\DishTypeController;
-use App\Http\Controllers\ChefOrderController;
 use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\PositionController;
-use App\Http\Controllers\UserController;
-use App\Models\Dish;
+use App\Http\Controllers\ChefOrderController;
+use App\Http\Controllers\OrderItemController;
+use App\Http\Controllers\PaymentTypeController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -23,8 +23,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('catalogs')->group(function () {
         Route::resource('table', TableController::class)->except('create', 'edit', 'show');
         Route::get('get-tables', [TableController::class, 'getTables']);
-        Route::resource('dish-types', DishTypeController::class)->except('create', 'edit', 'show');
+        Route::resource('payment-types', PaymentTypeController::class)->except('create', 'edit', 'show');
+        Route::get('get-payment-types',[PaymentTypeController::class, 'getPaymentTypes']);
         Route::resource('positions', PositionController::class)->except('create', 'edit', 'show');
+        Route::resource('dish-types', DishTypeController::class)->except('create', 'edit', 'show');
         Route::resource('dish', DishController::class)->except('create', 'show');
         Route::get('get-dishes', [DishController::class, 'getDishes']);
     });
@@ -37,9 +39,16 @@ Route::middleware('auth:sanctum')->group(function () {
     // ORDER
     Route::resource('orders', OrderController::class)->except('create', 'show');
     Route::post('orders/cancel-editing/{order}', [OrderController::class, 'cancelEditing']);
+    Route::patch('pay-order/{order}', [OrderController::class, 'payOrder']);
     // ORDER ITEMS
     Route::resource('order-item', OrderItemController::class)->except('create', 'show');
     Route::patch('order-items/update-dish-status', [OrderItemController::class, 'updateDishStatus']);
     // CHEF
     Route::get('chef/orders', [ChefOrderController::class, 'index']);
+
+    Route::get('/phrase', function () {
+        
+            return ['phrase' => 'El éxito es la suma de pequeños esfuerzos repetidos cada día.', 'author' => 'Robert Collier'];
+        
+    });
 });

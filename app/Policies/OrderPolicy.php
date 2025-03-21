@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\Order;
+use Illuminate\Support\Facades\Log;
 
 class OrderPolicy
 {
@@ -33,6 +34,11 @@ class OrderPolicy
 
     // ✅ Solo permitir a waiter eliminar órdenes
     public function delete(User $user, Order $order)
+    {
+        return $user->hasRole('waiter');
+    }
+    // ✅ Solo permitir a waiter actualizar el estado de la orden
+    public function payOrder(User $user, Order $order)
     {
         return $user->hasRole('waiter');
     }

@@ -19,7 +19,6 @@ class OrderItemsUpdated implements ShouldBroadcast
      */
     public function __construct(public int $orderId, public array $orderItems, public bool $completed)
     {
-        Log::info(Auth::user());
     }
 
     /**
