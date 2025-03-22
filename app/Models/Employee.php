@@ -27,4 +27,15 @@ class Employee extends Model
         return $this->hasOne(User::class);
     }
 
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('name', 'ILIKE', "%$search%")
+            ->orWhere('first_surname', 'ILIKE', "%$search%")
+            ->orWhere('second_surname', 'ILIKE', "%$search%")
+            ->orWhere('salary', 'ILIKE', "%$search%")
+            ->orWhereHas('position', function ($query) use ($search) {
+                $query->where('name', 'ILIKE', "%$search%");
+            });
+    }
+
 }

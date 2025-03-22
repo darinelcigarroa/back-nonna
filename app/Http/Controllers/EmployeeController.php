@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use App\Traits\Loggable;
 use Spatie\Permission\Models\Role;
 
+use function Laravel\Prompts\search;
+
 class EmployeeController extends Controller
 {
     use Loggable;
@@ -22,6 +24,7 @@ class EmployeeController extends Controller
         try {
             $rowsPerPage = $request->get('rowsPerPage', 10);
             $page = $request->get('page', 1);
+            $search = $request->get('filter');
 
             $employee = Employee::with('position:id,name')->select(
                 'id',
@@ -30,7 +33,9 @@ class EmployeeController extends Controller
                 'second_surname',
                 'position_id',
                 'salary'
-            )->orderBy('id', 'DESC')->paginate($rowsPerPage, ['*'], 'page', $page);
+            )->when(!empty($search), function ($query) use ($search) {
+                return $query->search($search);
+            })->orderBy('id', 'DESC')->paginate($rowsPerPage, ['*'], 'page', $page);
 
             return ApiResponse::success(['employees' => $employee], 'Operación exitosa');
         } catch (Exception $e) {
