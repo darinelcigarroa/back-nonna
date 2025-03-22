@@ -42,7 +42,7 @@ class EmployeeController extends Controller
                     $query->whereIn('name', $filterPosition);
                 });
             })
-            ->orderBy('id', 'DESC')->paginate($rowsPerPage, ['*'], 'page', $page);
+                ->orderBy('id', 'DESC')->paginate($rowsPerPage, ['*'], 'page', $page);
 
             return ApiResponse::success(['employees' => $employee], 'Operación exitosa');
         } catch (Exception $e) {
@@ -76,7 +76,7 @@ class EmployeeController extends Controller
                 'password' => bcrypt($userName),
                 'employee_id' => $employee->id,
             ]);
-            
+
             $employee->load('position');
 
             $role = Role::where('name', $employee->position->name)->first();
