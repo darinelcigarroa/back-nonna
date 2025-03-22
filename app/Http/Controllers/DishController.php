@@ -7,6 +7,7 @@ use App\Models\Dish;
 use App\Traits\Loggable;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class DishController extends Controller
 {
@@ -20,6 +21,7 @@ class DishController extends Controller
         try {
             $rowsPerPage = $request->get('rowsPerPage', 10);
             $page = $request->get('page', 1);
+            $search = $request->get('filter');
 
             $tables = Dish::with('dishType')->select(
                 'id',
@@ -28,7 +30,9 @@ class DishController extends Controller
                 'description',
                 'status',
                 'dish_type_id'
-            )->orderBy('id', 'DESC')->paginate($rowsPerPage, ['*'], 'page', $page);
+            )->when(!empty($search), function($query) use($search) {
+                $query->search($search);
+            })->orderBy('id', 'DESC')->paginate($rowsPerPage, ['*'], 'page', $page);
 
             return ApiResponse::success(['dishes' => $tables], 'Operación exitosa');
         } catch (Exception $e) {

@@ -7,6 +7,7 @@ use App\Models\Table;
 use App\Traits\Loggable;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class TableController extends Controller
 {
@@ -20,13 +21,17 @@ class TableController extends Controller
         try {
             $rowsPerPage = $request->get('rowsPerPage', 10);
             $page = $request->get('page', 1);
+            $filter = $request->get('filter');
 
             $tables = Table::select(
                 'id',
                 'name',
                 'capacity',
                 'status'
-            )->orderBy('id', 'DESC')->paginate($rowsPerPage, ['*'], 'page', $page);
+            )->when(!empty($filter), function($query) use ($filter) {
+                $query->search($filter);
+
+            })->orderBy('id', 'DESC')->paginate($rowsPerPage, ['*'], 'page', $page);
 
             return ApiResponse::success(['tables' => $tables], 'Operación exitosa');
         } catch (Exception $e) {

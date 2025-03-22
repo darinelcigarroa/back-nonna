@@ -55,14 +55,14 @@ class Order extends Model
 
     public function scopeSearch($query, $search)
     {
-        return $query->where('folio', 'LIKE', "%$search%")
+        return $query->where('folio', 'ILIKE', "%$search%")
             ->orWhere('total_amount', 'LIKE', "%$search%")
-            // ->orWhere('formatted_date', 'LIKE', "%$search%")
+            ->orWhere('created_at', 'LIKE', "%$search%")
             ->orWhereHas('table', function ($query) use ($search) {
-                $query->where('name', 'LIKE', "%$search%");
+                $query->where('name', 'ILIKE', "%$search%");
             })
             ->orWhereHas('orderStatus', function ($query) use ($search) {
-                $query->where('name', 'LIKE', "%$search%");
+                $query->where('name', 'ILIKE', "%$search%");
             });
     }
 
