@@ -53,6 +53,19 @@ class Order extends Model
         });
     }
 
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('folio', 'LIKE', "%$search%")
+            ->orWhere('total_amount', 'LIKE', "%$search%")
+            // ->orWhere('formatted_date', 'LIKE', "%$search%")
+            ->orWhereHas('table', function ($query) use ($search) {
+                $query->where('name', 'LIKE', "%$search%");
+            })
+            ->orWhereHas('orderStatus', function ($query) use ($search) {
+                $query->where('name', 'LIKE', "%$search%");
+            });
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

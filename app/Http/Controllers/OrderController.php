@@ -32,12 +32,12 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         try {
-            $this->authorize('viewAny', Order::class); // ✅ Solo pasamos la re
-
-
+            $this->authorize('viewAny', Order::class);
+            
             $orders = $this->orderService->getOrders(
-                $request->input('per_page'),
-                false // ✅ Mesero debe ver todos los items
+                $request->input('per_page'), 
+                $request->input('filters'),
+                $request->input('search')
             );
 
             return ApiResponse::success([
@@ -236,14 +236,12 @@ class OrderController extends Controller
     public function payOrder(Request $request, Order $order)
     {
         try {
-            Log::info('request', [$request->order['paymentType']['id']]);
-            // Log::info($order);
             $this->authorize('payOrder', $order);
 
             $order->update([
                 'payment_type_id' => $request->order['paymentType']['id'],
                 'payment_type_name' => $request->order['paymentType']['name'],
-                'order_status_id' => OrderStatus::COMPLETED
+                'order_status_id' => OrderStatus::PAID
             ]);
 
 
@@ -253,4 +251,5 @@ class OrderController extends Controller
             return ApiResponse::error('Error interno al pagar la orden', 500);
         }
     }
+  
 }

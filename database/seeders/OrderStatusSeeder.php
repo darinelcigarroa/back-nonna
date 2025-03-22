@@ -15,12 +15,12 @@ class OrderStatusSeeder extends Seeder
     public function run(): void
     {
         $statuses = [
-            ['id' => 1, 'name' => 'Pendiente'],
-            ['id' => 2, 'name' => 'Completado'],
-            ['id' => 3, 'name' => 'Enviado'],
-            ['id' => 4, 'name' => 'Pagado'],
-            ['id' => 5, 'name' => 'En edición'],
-            ['id' => 6, 'name' => 'Cancelado'],
+            ['id' => 1, 'name' => 'pendiente'],
+            ['id' => 2, 'name' => 'completado'],
+            ['id' => 3, 'name' => 'enviado'],
+            ['id' => 4, 'name' => 'pagado'],
+            ['id' => 5, 'name' => 'en edición'],
+            ['id' => 6, 'name' => 'cancelado'],
         ];
         
         foreach ($statuses as $status) {

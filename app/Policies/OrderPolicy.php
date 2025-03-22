@@ -11,7 +11,7 @@ class OrderPolicy
     // ✅ Permitir a waiter y chef ver el índice
     public function viewAny(User $user)
     {
-        return $user->hasRole('waiter') || $user->hasRole('chef');
+        return $user->hasRole('waiter') || $user->hasRole('chef') || $user->hasRole('super-admin');
     }
 
     // ✅ Solo permitir a waiter edite órdenes

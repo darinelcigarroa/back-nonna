@@ -43,12 +43,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // ORDER ITEMS
     Route::resource('order-item', OrderItemController::class)->except('create', 'show');
     Route::patch('order-items/update-dish-status', [OrderItemController::class, 'updateDishStatus']);
-    // CHEF
-    Route::get('chef/orders', [ChefOrderController::class, 'index']);
 
     Route::get('/phrase', function () {
-        
-            return ['phrase' => 'El éxito es la suma de pequeños esfuerzos repetidos cada día.', 'author' => 'Robert Collier'];
-        
+        return ['phrase' => 'El éxito es la suma de pequeños esfuerzos repetidos cada día.', 'author' => 'Robert Collier'];
     });
 });
