@@ -8,6 +8,7 @@ use App\Models\Employee;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use App\Traits\Loggable;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 
 use function Laravel\Prompts\search;
@@ -25,6 +26,7 @@ class EmployeeController extends Controller
             $rowsPerPage = $request->get('rowsPerPage', 10);
             $page = $request->get('page', 1);
             $search = $request->get('filter');
+            $filterPosition = $request->get('filterPosition');
 
             $employee = Employee::with('position:id,name')->select(
                 'id',
@@ -35,7 +37,12 @@ class EmployeeController extends Controller
                 'salary'
             )->when(!empty($search), function ($query) use ($search) {
                 return $query->search($search);
-            })->orderBy('id', 'DESC')->paginate($rowsPerPage, ['*'], 'page', $page);
+            })->when(!empty($filterPosition), function ($query) use ($filterPosition) {
+                return $query->whereHas('position', function ($query) use ($filterPosition) {
+                    $query->whereIn('name', $filterPosition);
+                });
+            })
+            ->orderBy('id', 'DESC')->paginate($rowsPerPage, ['*'], 'page', $page);
 
             return ApiResponse::success(['employees' => $employee], 'Operación exitosa');
         } catch (Exception $e) {
