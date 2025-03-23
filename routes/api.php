@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('admin')->group(function () {
         Route::resource('employee', EmployeeController::class)->except('create', 'edit', 'show');
+        Route::get('get-most-used-tables', [TableController::class, 'getMostUsedTables']);
     });
     // USER
     Route::resource('user', UserController::class);
