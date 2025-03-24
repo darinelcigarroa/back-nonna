@@ -104,7 +104,7 @@ class DishController extends Controller
         try {
             $dishes = Dish::when($request->has('typeDish'), function ($query) use ($request) {
                 return $query->where('dish_type_id', $request->typeDish);
-            })->select('id', 'name', 'price', 'description', 'dish_type_id')->get();
+            })->where('status', true)->select('id', 'name', 'price', 'description', 'dish_type_id')->get();
 
             return ApiResponse::success([
                 'dishes' => $dishes

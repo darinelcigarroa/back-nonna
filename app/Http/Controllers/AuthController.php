@@ -65,7 +65,6 @@ class AuthController extends Controller
             return ApiResponse::success([
                 'user' => $user,
                 'roles' => $user->roles->pluck('name'),
-                'orders' => $user->roles->pluck('name'),
                 'token' => $user->createToken('auth_token')->plainTextToken,
             ], 'Has iniciado sesión');
 

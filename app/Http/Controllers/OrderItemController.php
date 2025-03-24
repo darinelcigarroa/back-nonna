@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Traits\Loggable;
 use App\Models\OrderItem;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use App\Events\OrderItemDeleted;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use App\Actions\UpdateOrderItemStatusAction;
 
 class OrderItemController extends Controller
 {
+    use Loggable;
+
     public function __construct(protected UpdateOrderItemStatusAction $updateOrderItemStatusAction) {}
 
     /**
@@ -77,8 +79,8 @@ class OrderItemController extends Controller
             broadcast(new OrderItemDeleted($orderItem->only(['id', 'order_id'])));
 
             return ApiResponse::success([], 'Se ha eliminado el platillo', 200);
-        } catch (\Throwable $th) {
-            Log::info($th);
+        } catch (\Exception $e) {
+            $this->logError($e);
             return ApiResponse::error('Error interno al eliminar el platillo', 500);
         }
     }
@@ -104,8 +106,8 @@ class OrderItemController extends Controller
                 $result['message']
             );
 
-        } catch (\Throwable $th) {
-            Log::error($th);
+        } catch (\Exception $e) {
+            $this->logError($e);
             DB::rollBack();
             return ApiResponse::error('Error interno al actualizar el platillo', 500);
         }

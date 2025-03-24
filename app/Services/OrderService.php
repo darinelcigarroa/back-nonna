@@ -56,9 +56,10 @@ class OrderService
             'order_status_id',
             'table_id',
             'total_amount',
-            'created_at'
+            'created_at',
+            'updated_at',
         )
-        ->orderBy('id', 'ASC');
+        ->orderBy('updated_at', 'ASC');
     
         return $query->paginate($rowsPerPage);
     }

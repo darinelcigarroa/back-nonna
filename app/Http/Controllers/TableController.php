@@ -105,7 +105,9 @@ class TableController extends Controller
                 'name',
                 'capacity',
                 'status'
-            )->orderBy('id', 'ASC')->get();
+            )->where('status', true)
+            ->where('in_use', false)
+            ->orderBy('id', 'ASC')->get();
 
             return ApiResponse::success(['tables' => $tables], 'Operación exitosa');
         } catch (Exception $e) {

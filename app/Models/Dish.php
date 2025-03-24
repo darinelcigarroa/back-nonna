@@ -11,7 +11,8 @@ class Dish extends Model
         'description',
         'price',
         'status',
-        'dish_type_id'
+        'dish_type_id',
+        'stock_status'
     ];
     public function scopeSearch($query, $search)
     {

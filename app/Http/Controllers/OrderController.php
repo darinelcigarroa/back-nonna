@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\Order;
+use App\Models\Table;
 use App\Traits\Loggable;
 use App\Models\OrderStatus;
 use App\Helpers\ApiResponse;
@@ -41,7 +42,8 @@ class OrderController extends Controller
             );
 
             return ApiResponse::success([
-                'orders' => $orders
+                'orders' => $orders,
+                'pendingOrders' => $this->orderService->pendingOrdersCount()
             ]);
         } catch (Exception $e) {
             $this->logError($e);
@@ -55,9 +57,10 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         try {
-            $this->authorize('create');
+            $this->authorize('create', Order::class);
 
             DB::beginTransaction();
+
             $folio = Order::generateUniqueFolio();
             $total = 0;
 
@@ -84,13 +87,13 @@ class OrderController extends Controller
                 $total += $orderItem->price * $orderItem->quantity;
             }
 
+            Table::where('id', $order->table_id)->update(['in_use' => true]);
             $order->update(['total_amount' => $total]);
 
             $order->load([
                 'orderItems.orderItemStatus',
                 'table'
             ]);
-
 
             broadcast(new OrdersUpdated($order))->toOthers();
 
@@ -157,6 +160,7 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         try {
+            Log::info('Updating order');
             $this->authorize('update', $order);
 
             DB::beginTransaction();
@@ -164,7 +168,6 @@ class OrderController extends Controller
             $updatedItems = [];
 
             foreach ($request->orders as $item) {
-                Log::info($item);
                 $status = $item['status_id'] == OrderItemStatus::STATUS_CREATED ? OrderItemStatus::STATUS_IN_KITCHEN : $item['status_id'];
                 $updatedItem = $order->orderItems()->updateOrCreate(
                     ['id' => $item['id'] ?? null],
@@ -173,7 +176,7 @@ class OrderController extends Controller
                         'quantity' => $item['quantity'],
                         'price' => $item['dish']['price'],
                         'dish_name' => $item['dish']['name'],
-                        'dish_type' => 'ok',
+                        'dish_type' => $item['typeDish']['name'],
                         'observations' => $item['observations'] ?? null,
                         'status_id' => $status
                     ]
@@ -181,8 +184,14 @@ class OrderController extends Controller
                 $updatedItem->load(['orderItemStatus:id,name']);
                 $updatedItems[] = $updatedItem;
             }
+            
+            $order->load([
+                'orderItems.orderItemStatus',
+                'table'
+            ]);
 
             broadcast(new OrderItemsUpdated($order->id, $updatedItems, false))->toOthers();
+            broadcast(new OrdersUpdated($order))->toOthers();
 
             DB::commit();
 
@@ -236,6 +245,8 @@ class OrderController extends Controller
     public function payOrder(Request $request, Order $order)
     {
         try {
+            DB::beginTransaction();
+
             $this->authorize('payOrder', $order);
 
             $order->update([
@@ -244,9 +255,13 @@ class OrderController extends Controller
                 'order_status_id' => OrderStatus::PAID
             ]);
 
+            Table::where('id', $order->table_id)->update(['in_use' => false]);
+
+            DB::commit();
 
             return ApiResponse::success(null, 'Orden pagada correctamente');
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error($e);
             return ApiResponse::error('Error interno al pagar la orden', 500);
         }

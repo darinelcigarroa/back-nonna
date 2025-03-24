@@ -7,8 +7,9 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderStatus;
 use App\Events\OrdersUpdated;
-use App\Events\OrderItemsUpdated;
 use App\Models\OrderItemStatus;
+use App\Events\OrderItemsUpdated;
+use Illuminate\Support\Facades\Log;
 
 class OrderItemService
 {
@@ -36,11 +37,13 @@ class OrderItemService
     {
         // Actualiza los elementos de la orden
         OrderItem::whereIn('id', $ids)->update(['status_id' => $statusId]);
-
         // Verifica directamente si hay elementos pendientes
         $pendingItems = !OrderItem::where('order_id', $orderID)
             ->where('status_id', '!=', OrderItemStatus::STATUS_READY_TO_SERVE)
             ->exists();
+
+        Log::info('', ['ids' => $ids, 'pendingItems' => $pendingItems, 'orderID' => $orderID]);
+
 
         // Si no hay elementos pendientes, actualiza el estado de la orden
         if ($pendingItems) {
@@ -63,6 +66,7 @@ class OrderItemService
 
     public function broadcastPendingOrdersCountUpdated()
     {
+        Log::info('Broadcasting OrdersUpdated');
         broadcast(new OrdersUpdated());
     }
 }

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Table extends Model
 {
-    protected $fillable = ['name', 'status', 'capacity'];
+    protected $fillable = ['name', 'status', 'capacity', 'in_use'];
 
     public function scopeSearch($query, $search)
     {
