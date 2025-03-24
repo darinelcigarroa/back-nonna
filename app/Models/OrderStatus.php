@@ -10,6 +10,5 @@ class OrderStatus extends Model
     public const COMPLETED = 2;
     public const SHIPPED = 3;
     public const PAID = 4;
-    public const EDITING = 5;
-    public const CANCELED = 6;
+    public const CANCELED = 5;
 }

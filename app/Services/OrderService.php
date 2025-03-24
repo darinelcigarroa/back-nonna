@@ -28,7 +28,7 @@ class OrderService
                 'status_id',
                 'order_id',
                 'updated_at',
-                'price'
+                'price',
             )
             ->with(['orderItemStatus:id,name'])
             ->orderBy('id', 'ASC');
@@ -36,7 +36,6 @@ class OrderService
             $query->search($search);
         })
         ->when(!empty($filters), function ($query) use ($filters) {
-            Log::info('Filters', [$filters]);
             $query->whereHas('orderStatus', function ($query) use ($filters) {
                 $query->whereIn('name', $filters);
             });
@@ -56,6 +55,7 @@ class OrderService
             'order_status_id',
             'table_id',
             'total_amount',
+            'editing',
             'created_at',
             'updated_at',
         )

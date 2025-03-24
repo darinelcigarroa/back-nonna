@@ -34,9 +34,9 @@ class OrderController extends Controller
     {
         try {
             $this->authorize('viewAny', Order::class);
-            
+
             $orders = $this->orderService->getOrders(
-                $request->input('per_page'), 
+                $request->input('per_page'),
                 $request->input('filters'),
                 $request->input('search')
             );
@@ -103,12 +103,11 @@ class OrderController extends Controller
                 'order' => $order
             ], 'Orden creada correctamente', 201);
         } catch (Exception $e) {
-            Log::error($e);
+            $this->logError($e);
             DB::rollBack();
             return ApiResponse::error('Error interno al enviar las orden a cocina', 500);
         }
     }
-
     /**
      * Display the specified resource.
      */
@@ -116,7 +115,6 @@ class OrderController extends Controller
     {
         //
     }
-
     /**
      * Show the form for editing the specified resource.
      */
@@ -126,10 +124,8 @@ class OrderController extends Controller
             $this->authorize('edit', $order);
 
             $order->update([
-                'order_status_id' => OrderStatus::EDITING
+                'editing' => true
             ]);
-
-            broadcast(new WaiterEditingOrder($order))->toOthers();
 
             $order->loadMissing([
                 'orderItems:id,quantity,observations,order_id,dish_id,status_id',
@@ -147,10 +143,12 @@ class OrderController extends Controller
                 'date' => $order->formatted_date,
                 'time' => $order->formatted_time,
             ];
+            
+            broadcast(new WaiterEditingOrder($order))->toOthers();
 
             return ApiResponse::success(['order' => $orderData, 'orderItems' => $order->orderItems]);
         } catch (\Exception $e) {
-            Log::error($e);
+            $this->logError($e);
             return ApiResponse::error('Error interno al obtener la orden', 500);
         }
     }
@@ -184,7 +182,7 @@ class OrderController extends Controller
                 $updatedItem->load(['orderItemStatus:id,name']);
                 $updatedItems[] = $updatedItem;
             }
-            
+
             $order->load([
                 'orderItems.orderItemStatus',
                 'table'
@@ -199,9 +197,8 @@ class OrderController extends Controller
                 'orderItems' => $updatedItems
             ], 'OrderItems actualizados correctamente', 200);
         } catch (Exception $e) {
-            Log::error($e);
+            $this->logError($e);
             DB::rollBack();
-
             return ApiResponse::error('Error interno al actualizar los OrderItems', 500);
         }
     }
@@ -217,18 +214,17 @@ class OrderController extends Controller
 
             return ApiResponse::success(['message' => 'Orden eliminada correctamente']);
         } catch (Exception $e) {
-            Log::error($e);
+            $this->logError($e);
             return ApiResponse::error('Error interno al eliminar la orden', 500);
         }
     }
-
     public function cancelEditing(Order $order)
     {
         try {
-            if ($order->order_status_id === OrderStatus::EDITING) {
+            if ($order->editing === true) {
 
                 $order->update([
-                    'order_status_id' => OrderStatus::PENDING
+                    'editing' => false
                 ]);
 
                 broadcast(new WaiterEditingOrder($order))->toOthers();
@@ -238,7 +234,7 @@ class OrderController extends Controller
 
             return ApiResponse::success(null, 'No se requiere actualización.');
         } catch (\Exception $e) {
-            Log::error($e);
+            $this->logError($e);
             return ApiResponse::error('Error al cancelar edición, avisar al administrador', 500);
         }
     }
@@ -261,8 +257,8 @@ class OrderController extends Controller
 
             return ApiResponse::success(null, 'Orden pagada correctamente');
         } catch (\Exception $e) {
+            $this->logError($e);
             DB::rollBack();
-            Log::error($e);
             return ApiResponse::error('Error interno al pagar la orden', 500);
         }
     }

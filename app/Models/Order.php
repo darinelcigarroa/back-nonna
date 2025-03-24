@@ -19,6 +19,7 @@ class Order extends Model
         'total_amount',
         'payment_type_id',
         'payment_type_name',
+        'editing'
     ];
 
     protected $appends = ['formatted_date', 'formatted_time', 'selectAll'];

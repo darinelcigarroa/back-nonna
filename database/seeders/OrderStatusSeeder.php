@@ -19,8 +19,7 @@ class OrderStatusSeeder extends Seeder
             ['id' => 2, 'name' => 'completado'],
             ['id' => 3, 'name' => 'enviado'],
             ['id' => 4, 'name' => 'pagado'],
-            ['id' => 5, 'name' => 'en edición'],
-            ['id' => 6, 'name' => 'cancelado'],
+            ['id' => 5, 'name' => 'cancelado'],
         ];
         
         foreach ($statuses as $status) {
