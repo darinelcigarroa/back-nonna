@@ -93,15 +93,55 @@ class ChartController extends Controller
                 'user_id',
                 DB::raw('COUNT(user_id) as total_services')
             )
-            ->with(['user:id,employee_id', 'user.employee:id,name'])
             ->where('order_status_id', OrderStatus::PAID)
             ->groupBy('user_id')
-            ->orderBy('total_services','ASC')
+            ->orderByDesc('total_services') // Forma más clara de ordenar DESC
+            ->with(['user:id,employee_id', 'user.employee:id,name'])
             ->paginate($rowsPerPage, ['*'], 'page', $page);
 
-            Log::info('waiters', ['waiters' => $waiters]);
-
             return ApiResponse::success(['waiters' => $waiters], 'Operación exitosa');
+        } catch (Exception $e) {
+            $this->logError($e);
+            return ApiResponse::error('Error interno al obtener los meseros');
+        }
+    }     
+    public function trendsMainCourseSales(Request $request) {
+        try {
+            $totalSold = DB::table('order_items')
+                ->where('dish_type', 'Plato Fuerte')->sum('quantity');
+
+            // Obtener el top 5 de los platillos más vendidos
+            $topDishes = DB::table('order_items')
+                ->select('dish_name as name', DB::raw('SUM(quantity) as total_sold'))
+                ->where('dish_type', 'Plato Fuerte')
+                ->groupBy('dish_name')
+                ->orderByDesc('total_sold')
+                ->limit(5)
+                ->get();
+            
+            // Obtener la cantidad total de los demás platillos
+            $otherSold = DB::table('order_items')
+                ->where('dish_type', 'Plato Fuerte')
+                ->whereNotIn('dish_name', $topDishes->pluck('name'))
+                ->sum('quantity');
+            
+            // Agregar el porcentaje a cada platillo
+            $topDishes = $topDishes->map(function ($dish) use ($totalSold) {
+                $dish->value = round(($dish->total_sold / $totalSold) * 100, 2);
+                return $dish;
+            });
+            
+            // Agregar "Otros" con su porcentaje
+            $otherDishes = (object) [
+                'name' => 'Otros',
+                'total_sold' => $otherSold,
+                'value' => round(($otherSold / $totalSold) * 100, 2),
+            ];
+            
+            // Unimos los resultados
+            $result = $topDishes->push($otherDishes);
+            Log::info('result', ['result' => $result]);
+            return ApiResponse::success(['result' => $result], 'Operación exitosa');
         } catch (Exception $e) {
             $this->logError($e);
             return ApiResponse::error('Error interno al obtener los meseros');

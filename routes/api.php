@@ -37,6 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('get-most-used-tables', [ChartController::class, 'getMostUsedTables']);
         Route::get('get-monthly-income-trend', [ChartController::class, 'monthlyIncomeTrend']);
         Route::get('get-services-attended-waiter', [ChartController::class, 'servicesAttendedWaiter']);
+        Route::get('get-trends-main-course-sales', [ChartController::class, 'trendsMainCourseSales']);
     });
     // USER
     Route::resource('user', UserController::class);
