@@ -158,7 +158,6 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         try {
-            Log::info('Updating order');
             $this->authorize('update', $order);
 
             DB::beginTransaction();
