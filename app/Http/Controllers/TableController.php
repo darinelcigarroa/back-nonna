@@ -113,25 +113,4 @@ class TableController extends Controller
             return ApiResponse::error('Error interno al obtener las mesas');
         }
     }
-    public function getMostUsedTables (Request $request) {
-        try {
-            $rowsPerPage = $request->get('rowsPerPage', 5);
-            $page = $request->get('page', 1);
-
-            $tables = Order::select(
-                'table_id',
-                DB::raw('COUNT(table_id) as total_uses')
-            )
-            ->with('table:id,name')
-            ->where('order_status_id', OrderStatus::PAID)
-            ->groupBy('table_id')
-            ->orderByDesc('total_uses')
-            ->paginate($rowsPerPage, ['*'], 'page', $page);
-
-            return ApiResponse::success(['tables' => $tables], 'Operación exitosa');
-        } catch (Exception $e) {
-            $this->logError($e);
-            return ApiResponse::error('Error interno al obtener las mesas');
-        }
-    }
 }

@@ -251,5 +251,4 @@ class OrderController extends Controller
             return ApiResponse::error('Error interno al pagar la orden', 500);
         }
     }
-  
 }

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChartController;
 use App\Http\Controllers\DishController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
@@ -33,7 +34,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('admin')->group(function () {
         Route::resource('employee', EmployeeController::class)->except('create', 'edit', 'show');
-        Route::get('get-most-used-tables', [TableController::class, 'getMostUsedTables']);
+        Route::get('get-most-used-tables', [ChartController::class, 'getMostUsedTables']);
+        Route::get('get-monthly-income-trend', [ChartController::class, 'monthlyIncomeTrend']);
+        Route::get('get-services-attended-waiter', [ChartController::class, 'servicesAttendedWaiter']);
     });
     // USER
     Route::resource('user', UserController::class);
