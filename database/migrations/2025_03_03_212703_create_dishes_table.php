@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
+            $table->enum('stock_status', ['available', 'out_of_stock'])->default('available');
             $table->boolean('status')->default(true);
             $table->foreignId('dish_type_id')->constrained();
             $table->timestamps();

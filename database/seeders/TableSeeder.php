@@ -17,7 +17,8 @@ class TableSeeder extends Seeder
             Table::create([
                 'name' => "Mesa $number",
                 'capacity' => random_int(1, 5),
-                'status' => false
+                'status' => true,
+                'in_use' => false
             ]);
         }
     }
