@@ -2,15 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ChartController;
 use App\Http\Controllers\DishController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ChartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\DishTypeController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PositionController;
-use App\Http\Controllers\ChefOrderController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\PaymentTypeController;
 
@@ -39,17 +39,20 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('get-services-attended-waiter', [ChartController::class, 'servicesAttendedWaiter']);
         Route::get('get-trends-main-course-sales', [ChartController::class, 'trendsMainCourseSales']);
     });
+    // Stats
+    Route::get('dashboard/stats', [DashboardController::class, 'getStats']);
     // USER
     Route::resource('user', UserController::class);
     // ORDER
     Route::resource('orders', OrderController::class)->except('create', 'show');
     Route::post('orders/cancel-editing/{order}', [OrderController::class, 'cancelEditing']);
     Route::patch('pay-order/{order}', [OrderController::class, 'payOrder']);
+    Route::patch('cancel-order/{order}', [OrderController::class, 'cancelOrder']);
     // ORDER ITEMS
     Route::resource('order-item', OrderItemController::class)->except('create', 'show');
     Route::patch('order-items/update-dish-status', [OrderItemController::class, 'updateDishStatus']);
 
-    Route::get('/phrase', function () {
+    Route::get('phrase', function () {
         return ['phrase' => 'El éxito es la suma de pequeños esfuerzos repetidos cada día.', 'author' => 'Robert Collier'];
     });
 });

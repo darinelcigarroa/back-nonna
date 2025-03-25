@@ -158,6 +158,7 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         try {
+
             $this->authorize('update', $order);
 
             DB::beginTransaction();
@@ -173,7 +174,7 @@ class OrderController extends Controller
                         'quantity' => $item['quantity'],
                         'price' => $item['dish']['price'],
                         'dish_name' => $item['dish']['name'],
-                        'dish_type' => $item['typeDish']['name'],
+                        'dish_type' => $item['typeDish']['name'] ?? $item['dish']['dish_type']['name'],
                         'observations' => $item['observations'] ?? null,
                         'status_id' => $status
                     ]
@@ -181,6 +182,10 @@ class OrderController extends Controller
                 $updatedItem->load(['orderItemStatus:id,name']);
                 $updatedItems[] = $updatedItem;
             }
+
+            $order->update([
+                'order_status_id' => OrderStatus::PENDING,
+            ]);
 
             $order->load([
                 'orderItems.orderItemStatus',
@@ -259,6 +264,29 @@ class OrderController extends Controller
             $this->logError($e);
             DB::rollBack();
             return ApiResponse::error('Error interno al pagar la orden', 500);
+        }
+    }
+    public function cancelOrder(Request $request, Order $order)
+    {
+        try {
+            DB::beginTransaction();
+
+            $this->authorize('cancelOrder', Order::class);
+
+            $order->update([
+                'order_status_id' => OrderStatus::CANCELED
+            ]);
+
+            Table::where('id', $order->table_id)->update(['in_use' => false]);
+            broadcast(new OrdersUpdated($order))->toOthers();
+
+            DB::commit();
+
+            return ApiResponse::success(null, 'Orden cancelada correctamente');
+        } catch (\Exception $e) {
+            $this->logError($e);
+            DB::rollBack();
+            return ApiResponse::error('Error interno al cancelar la orden', 500);
         }
     }
 }

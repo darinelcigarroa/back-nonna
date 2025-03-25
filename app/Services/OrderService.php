@@ -6,7 +6,6 @@ use App\Models\Order;
 use App\Models\OrderStatus;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class OrderService
 {
@@ -44,10 +43,11 @@ class OrderService
             $query->whereIn('order_status_id', [OrderStatus::PAID, OrderStatus::CANCELED]);
         })
         ->when($isChef, function ($query) {
-            $query->where('order_status_id', '!=', OrderStatus::COMPLETED);
+            $query->whereNotIn('order_status_id', [OrderStatus::COMPLETED, OrderStatus::CANCELED]);
         })
         ->when($isWaiter, function ($query) use ($user) {
-            $query->where('user_id', $user->id)->where('order_status_id', '!=', OrderStatus::PAID);
+            $query->where('user_id', $user->id)
+                ->whereNotIn('order_status_id',  [OrderStatus::PAID, OrderStatus::CANCELED]);
         })
         ->select(
             'id',
@@ -59,7 +59,7 @@ class OrderService
             'created_at',
             'updated_at',
         )
-        ->orderBy('updated_at', 'ASC');
+        ->orderBy('id', 'ASC');
     
         return $query->paginate($rowsPerPage);
     }

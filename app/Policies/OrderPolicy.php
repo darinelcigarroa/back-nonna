@@ -37,8 +37,13 @@ class OrderPolicy
     {
         return $user->hasRole('waiter');
     }
-    // ✅ Solo permitir a waiter actualizar el estado de la orden
+    // ✅ Solo permitir a waiter marcar el estado como pagado
     public function payOrder(User $user, Order $order)
+    {
+        return $user->hasRole('waiter');
+    }
+    // ✅ Solo permitir a waiter canceler órdenes
+    public function cancelOrder(User $user)
     {
         return $user->hasRole('waiter');
     }

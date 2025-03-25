@@ -12,7 +12,7 @@ class OrderSeeder extends Seeder
     {
         // Crear 10 órdenes con 3-5 order items cada una
         Order::factory()
-            ->count(60)
+            ->count(3)
             ->has(OrderItem::factory()->count(rand(1, 3))) // Genera de 3 a 5 items por orden
             ->create()
             ->each(function ($order) {
