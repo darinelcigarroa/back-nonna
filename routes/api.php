@@ -30,6 +30,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::resource('dish-types', DishTypeController::class)->except('create', 'edit', 'show');
         Route::resource('dish', DishController::class)->except('create', 'show');
         Route::get('get-dishes', [DishController::class, 'getDishes']);
+        Route::get('get-menu-dishes', [DishController::class, 'getMenuDishes']);
+        Route::patch('toggle-dish-status/{dish}', [DishController::class, 'toggleDishStatus']);
     });
 
     Route::prefix('admin')->group(function () {

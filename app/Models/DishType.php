@@ -9,4 +9,9 @@ class DishType extends Model
 {
     /** @use HasFactory<\Database\Factories\DishTypeFactory> */
     use HasFactory;
+
+    public function dishes ()
+    {
+        return $this->hasMany(Dish::class);
+    }
 }
