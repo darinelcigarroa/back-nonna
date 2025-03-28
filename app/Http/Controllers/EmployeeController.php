@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\EmployeeExport;
 use Exception;
 use App\Models\User;
 use App\Models\Employee;
+use App\Traits\Loggable;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
-use App\Traits\Loggable;
-use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Log;
 
 use function Laravel\Prompts\search;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeeController extends Controller
 {
@@ -143,6 +145,14 @@ class EmployeeController extends Controller
         } catch (Exception $e) {
             $this->logError($e);
             return ApiResponse::error('Error interno al eliminar el empleado');
+        }
+    }
+    public function exportEmployeeExcel(Request $request) {
+        try {
+            return Excel::download(new EmployeeExport($request->all()), 'users.xlsx');
+        } catch (Exception $e) {
+            $this->logError($e);
+            return ApiResponse::error('Error interno al exportar los empleados');
         }
     }
 }

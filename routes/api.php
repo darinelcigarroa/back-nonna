@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('admin')->group(function () {
         Route::resource('employee', EmployeeController::class)->except('create', 'edit', 'show');
+        Route::get('export/employee/excel', [EmployeeController::class, 'exportEmployeeExcel']);
         Route::get('get-most-used-tables', [ChartController::class, 'getMostUsedTables']);
         Route::get('get-monthly-income-trend', [ChartController::class, 'monthlyIncomeTrend']);
         Route::get('get-services-attended-waiter', [ChartController::class, 'servicesAttendedWaiter']);
