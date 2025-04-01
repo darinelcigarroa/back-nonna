@@ -14,16 +14,17 @@ RUN composer config --global cafile /etc/ssl/certs/ca-certificates.crt
 WORKDIR /var/www
 
 # Copiar el código de tu aplicación al contenedor
-COPY . .
-
-# Verificar la estructura de directorios después de copiar los archivos
-RUN echo "Contenido de /var/www:" && ls -la /var/www
+COPY . . 
 
 # Ejecutar Composer para instalar las dependencias de producción con opción verbose para ver más detalles
-RUN composer install --prefer-dist --no-interaction --optimize-autoloader --no-dev -vvv
+RUN composer install --no-dev && \
+    npm ci && \
+    npm run build && \
+    php artisan migrate:fresh --seed --force && \
+    chmod -R 777 storage && \
+    php artisan storage:link
 
 # Exponer el puerto 8000 para el servidor de Laravel
 EXPOSE 8000
 
-# Ejecutar el servidor de desarrollo de Laravel con logs previos
-CMD echo "Contenido de /var/www antes de arrancar Laravel:" && ls -la /var/www && echo "Contenido de /var/www/public:" && ls -la /var/www/public && php artisan serve --host=0.0.0.0 --port=8000
+CMD ["php-fpm"]
