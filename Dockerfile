@@ -18,6 +18,9 @@ COPY . /var/www/html
 # Establecer el directorio de trabajo
 WORKDIR /var/www/html
 
+# Verificar la ruta actual del proyecto
+RUN pwd && ls -la
+
 # Instalar dependencias
 RUN composer install --no-dev --optimize-autoloader
 
