@@ -13,15 +13,9 @@ RUN apk add --no-cache \
     curl \
     postgresql-dev \
     bash \
-    autoconf \
-    gcc \
-    g++ \
-    make \
     zlib-dev \
     libjpeg-turbo-dev \
-    libpng-dev \
     libwebp-dev \
-    libjpeg-dev \
     libxpm-dev \
     && apk update
 
@@ -29,7 +23,7 @@ RUN apk add --no-cache \
 RUN docker-php-ext-install soap pdo pdo_pgsql exif pcntl bcmath gd intl zip xsl sockets
 
 # Limpiar las herramientas de desarrollo después de la instalación
-RUN apk del gcc g++ make autoconf
+RUN apk del bash autoconf gcc g++ make
 
 # Obtener la última versión de Composer
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
@@ -48,17 +42,14 @@ RUN addgroup -g $UID -S $USER && \
 # Establecer permisos adecuados
 RUN chown -R $USER:$USER /var/www
 
-# Agregar usuario al archivo sudoers para evitar problemas con permisos (si es necesario)
-RUN echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-
 # Cambiar al usuario proporcionado para evitar correr el contenedor como root
 USER $USER
 
 # Copiar el código del proyecto Laravel al contenedor
 COPY . .
 
-# Instalar las dependencias de Composer de Laravel
-RUN composer install --prefer-dist --no-interaction --optimize-autoloader
+# Instalar las dependencias de Composer de Laravel en modo producción
+RUN composer install --prefer-dist --no-interaction --optimize-autoloader --no-dev
 
 # Exponer el puerto 8000 para el servidor de Laravel
 EXPOSE 8000
