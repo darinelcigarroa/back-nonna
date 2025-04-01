@@ -1,10 +1,10 @@
 FROM php:8.4-fpm-alpine
 
-# Actualizar los repositorios de apk y agregar las dependencias necesarias para PostgreSQL
-RUN apk update && apk add --no-cache ca-certificates postgresql-dev curl bash libpng-dev libjpeg-turbo-dev libwebp-dev libxpm-dev zlib-dev
+# Actualizar los repositorios de apk y agregar las dependencias necesarias.
+RUN apk update && apk add --no-cache ca-certificates postgresql-dev curl bash libpng-dev libjpeg-turbo-dev libwebp-dev libxpm-dev zlib-dev libgd-dev
 
-# Instalar las extensiones de PHP necesarias para PostgreSQL
-RUN docker-php-ext-install pdo pdo_pgsql
+# Instalar las extensiones de PHP necesarias.
+RUN docker-php-ext-install pdo pdo_pgsql gd
 
 # Instalar Composer y configurar el archivo de certificados CA
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
