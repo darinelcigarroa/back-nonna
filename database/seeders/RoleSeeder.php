@@ -12,6 +12,9 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         collect(['super-admin', 'chef', 'waiter'])
-            ->each(fn($role) => Role::create(['name' => $role]));
+        ->each(fn($role) => Role::updateOrCreate(
+            ['name' => $role], // Condición para verificar si ya existe
+            ['name' => $role]  // Los valores a insertar o actualizar
+        ));    
     }
 }

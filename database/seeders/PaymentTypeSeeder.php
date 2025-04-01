@@ -20,7 +20,13 @@ class PaymentTypeSeeder extends Seeder
             ['name' => 'Transferencia'],
             ['name' => 'Otros'],
         ];
-
-        DB::table('payment_types')->insert($paymentTypes);
+        
+        foreach ($paymentTypes as $paymentType) {
+            DB::table('payment_types')->updateOrInsert(
+                ['name' => $paymentType['name']], // Condición para verificar si ya existe
+                ['name' => $paymentType['name']]  // Los valores a insertar o actualizar
+            );
+        }
+        
     }
 }

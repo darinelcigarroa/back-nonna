@@ -13,11 +13,16 @@ class PositionSeeder extends Seeder
      */
     public function run(): void
     {
-        Position::create([
-            'name' => 'chef'
-        ]);
-        Position::create([
-            'name' => 'waiter'
-        ]);
-    }
+        $positions = [
+            ['name' => 'chef'],
+            ['name' => 'waiter'],
+        ];
+        
+        foreach ($positions as $position) {
+            Position::updateOrCreate(
+                ['name' => $position['name']], // Condición para verificar si ya existe
+                ['name' => $position['name']]  // Los valores a insertar o actualizar
+            );
+        }
+    }        
 }

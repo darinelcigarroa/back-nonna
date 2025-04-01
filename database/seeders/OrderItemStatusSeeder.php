@@ -13,10 +13,19 @@ class OrderItemStatusSeeder extends Seeder
      */
     public function run(): void
     {
-        OrderItemStatus::create(['name' => 'Creado']);
-        OrderItemStatus::create(['name' => 'En cocina']);
-        OrderItemStatus::create(['name' => 'En preparacion']);
-        OrderItemStatus::create(['name' => 'Listo para servir']);
-        OrderItemStatus::create(['name' => 'Cancelado']);
+        $orderItemStatuses = [
+            ['name' => 'Creado'],
+            ['name' => 'En cocina'],
+            ['name' => 'En preparacion'],
+            ['name' => 'Listo para servir'],
+            ['name' => 'Cancelado'],
+        ];
+        
+        foreach ($orderItemStatuses as $status) {
+            OrderItemStatus::updateOrCreate(
+                ['name' => $status['name']], // Condición para verificar si ya existe
+                ['name' => $status['name']]  // Los valores a insertar o actualizar
+            );
+        }        
     }
 }

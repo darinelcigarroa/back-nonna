@@ -27,7 +27,7 @@ RUN php artisan route:cache
 RUN php artisan view:cache
 
 # Ejecutar migraciones, seeders y configuración de almacenamiento
-RUN php artisan migrate:fresh --seed --force && \
+RUN php artisan migrate --force && \
     chmod -R 777 storage && \
     php artisan storage:link
 
