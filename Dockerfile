@@ -13,6 +13,16 @@ RUN apk add --no-cache \
     curl \
     postgresql-dev \
     bash \
+    autoconf \
+    gcc \
+    g++ \
+    make \
+    zlib-dev \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    libwebp-dev \
+    libjpeg-dev \
+    libxpm-dev \
     && apk update
 
 # Instalar las extensiones de PHP requeridas por Laravel
