@@ -17,7 +17,7 @@ use App\Http\Controllers\PaymentTypeController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::get('/api', function () {
+Route::get('/api-test', function () {
     return response()->json(['message' => 'API is working']);
 });
 
