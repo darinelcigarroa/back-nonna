@@ -9,18 +9,17 @@ RUN apk add --no-cache \
     libxml2-dev \
     libpng-dev \
     libzip-dev \
-    postgresql-dev \
+    libxslt-dev \
     curl \
+    postgresql-dev \
     zlib-dev \
     libjpeg-turbo-dev \
     libwebp-dev \
+    libxpm-dev \
     && apk update
 
 # Instalar las extensiones de PHP requeridas por Laravel
-RUN docker-php-ext-install soap pdo pdo_pgsql exif pcntl bcmath gd intl zip xsl sockets
-
-# Limpiar las herramientas de desarrollo después de la instalación
-RUN apk del libxml2-dev libpng-dev libzip-dev postgresql-dev zlib-dev libjpeg-turbo-dev libwebp-dev
+RUN docker-php-ext-install pdo pdo_pgsql exif pcntl bcmath gd intl zip xsl sockets
 
 # Obtener la última versión de Composer
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
