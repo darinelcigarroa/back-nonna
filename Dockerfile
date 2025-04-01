@@ -1,13 +1,13 @@
-# Usar la imagen de PHP con soporte para Laravel
+# Usa una imagen base con PHP-FPM y Nginx
 FROM php:8.2-fpm
 
-# Instalar dependencias del sistema y PHP
+# Instala dependencias necesarias
 RUN apt-get update && apt-get install -y \
+    nginx \
     libpng-dev libjpeg-dev libfreetype6-dev \
     git unzip curl libzip-dev libicu-dev \
-    nodejs npm && \
-    docker-php-ext-configure gd --with-freetype --with-jpeg && \
-    docker-php-ext-install gd pdo pdo_mysql zip intl
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd pdo pdo_mysql zip intl
 
 # Instalar Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -18,27 +18,18 @@ COPY . /var/www/html
 # Establecer el directorio de trabajo
 WORKDIR /var/www/html
 
-# Instalar dependencias de PHP y Node
-RUN composer install
-RUN npm install --production
-RUN php artisan optimize
-RUN php artisan config:cache
-RUN php artisan route:cache
-RUN php artisan view:cache
+# Instalar dependencias
+RUN composer install --no-dev --optimize-autoloader
 
-# Ejecutar migraciones, seeders y configuración de almacenamiento
-RUN php artisan migrate --seed --force && \
-    chmod -R 777 storage && \
-    php artisan storage:link
+# Configurar permisos
+RUN chmod -R 775 storage bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html
 
-# Permisos de almacenamiento y caché
-RUN chmod -R 777 storage bootstrap/cache
+# Copiar configuración de Nginx
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# Crear enlace simbólico para almacenamiento
-RUN php artisan storage:link || true
+# Exponer puerto 80 para Nginx
+EXPOSE 80
 
-# Exponer puerto
-EXPOSE 9000
-
-# Ejecutar PHP-FPM
-CMD ["php-fpm"]
+# Comando para iniciar PHP-FPM y Nginx
+CMD service nginx start && php-fpm
