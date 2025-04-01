@@ -19,12 +19,16 @@ COPY . /var/www/html
 WORKDIR /var/www/html
 
 # Instalar dependencias de PHP y Node
-RUN composer install --no-dev
-RUN npm ci
+RUN composer install
+RUN npm install --production
+RUN php artisan optimize
+RUN php artisan config:cache
+RUN php artisan route:cache
+RUN php artisan view:cache
 RUN npm run build
 
 # Ejecutar migraciones, seeders y configuración de almacenamiento
-RUN php artisan migrate:fresh --seed --force && \
+RUN php artisan migrate --force && \
     chmod -R 777 storage && \
     php artisan storage:link
 
