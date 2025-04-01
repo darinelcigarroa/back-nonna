@@ -1,8 +1,10 @@
+# Usa una imagen base con PHP-FPM
 FROM php:8.2-fpm
 
-# Instala dependencias necesarias
+# Instala dependencias necesarias, incluyendo Nginx
 RUN apt-get update && apt-get install -y \
     nginx \
+    supervisor \
     libpng-dev libjpeg-dev libfreetype6-dev \
     git unzip curl libzip-dev libicu-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -24,11 +26,12 @@ RUN composer install --no-dev --optimize-autoloader
 RUN chmod -R 775 storage bootstrap/cache
 RUN chown -R www-data:www-data /var/www/html
 
-# Copiar configuración de Nginx
+# Copiar configuración de Nginx y Supervisor
 COPY nginx.conf /etc/nginx/nginx.conf
+COPY supervisor.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Exponer puerto 80 para Nginx
+# Exponer el puerto 80 para Nginx
 EXPOSE 80
 
-# Comando para iniciar PHP-FPM y Nginx
-CMD ["nginx", "-g", "daemon off;"]  # Inicia Nginx en primer plano
+# Usar Supervisor para manejar Nginx y PHP-FPM
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
