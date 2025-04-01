@@ -1,5 +1,5 @@
 # Usar la imagen de PHP con soporte para Laravel
-FROM php:8.1-fpm
+FROM php:8.3-fpm
 
 # Instalar dependencias del sistema y PHP
 RUN apt-get update && apt-get install -y \
@@ -19,9 +19,9 @@ COPY . /var/www/html
 WORKDIR /var/www/html
 
 # Instalar dependencias de PHP y Node
-RUN composer install --no-dev && \
-    npm ci && \
-    npm run build
+RUN composer install --no-dev
+RUN npm ci
+RUN npm run build
 
 # Ejecutar migraciones, seeders y configuración de almacenamiento
 RUN php artisan migrate:fresh --seed --force && \
