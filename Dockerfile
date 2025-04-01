@@ -1,7 +1,7 @@
 FROM php:8.4-fpm-alpine
 
 # Actualizar los repositorios de apk y agregar las dependencias necesarias para PostgreSQL
-RUN apk update && apk add --no-cache postgresql-dev curl bash
+RUN apk update && apk add --no-cache postgresql-dev curl bash libpng-dev libjpeg-turbo-dev libwebp-dev libxpm-dev zlib-dev
 
 # Instalar las extensiones de PHP necesarias para PostgreSQL
 RUN docker-php-ext-install pdo pdo_pgsql
@@ -15,8 +15,8 @@ WORKDIR /var/www
 # Copiar el código de tu aplicación al contenedor
 COPY . .
 
-# Ejecutar Composer para instalar las dependencias de producción
-RUN composer install --prefer-dist --no-interaction --optimize-autoloader --no-dev
+# Ejecutar Composer para instalar las dependencias de producción con opción verbose para ver más detalles
+RUN composer install --prefer-dist --no-interaction --optimize-autoloader --no-dev -vvv
 
 # Exponer el puerto 8000 para el servidor de Laravel
 EXPOSE 8000
