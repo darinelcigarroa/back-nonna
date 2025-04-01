@@ -1,6 +1,7 @@
-FROM php:8.4-fpm-alpine
+# Usar una versión estable de PHP
+FROM php:8.3-fpm-alpine
 
-# Actualizar los repositorios de apk y agregar las dependencias necesarias.
+# Instalar dependencias necesarias
 RUN apk update && apk add --no-cache \
     ca-certificates \
     postgresql-dev \
@@ -15,41 +16,30 @@ RUN apk update && apk add --no-cache \
     libzip-dev \
     linux-headers \
     nodejs \
-    npm
+    npm \
+    && docker-php-ext-install pdo pdo_pgsql gd zip sockets \
+    && rm -rf /var/cache/apk/*
 
-# Instalar las extensiones de PHP necesarias.
-RUN docker-php-ext-install pdo pdo_pgsql gd zip sockets
+# Instalar Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Instalar Composer y configurar el archivo de certificados CA
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-RUN composer config --global cafile /etc/ssl/certs/ca-certificates.crt
-
-# Establecer el directorio de trabajo en /var/www
+# Establecer directorio de trabajo
 WORKDIR /var/www
 
-# Copiar el código de tu aplicación al contenedor
+# Copiar archivos del proyecto
 COPY . .
 
-# Ejecutar Composer para instalar las dependencias de producción
-RUN composer install --no-dev
+# Instalar dependencias de PHP
+RUN composer install --no-dev --prefer-dist --optimize-autoloader
 
-# Instalar las dependencias de Node.js y construir la aplicación
-RUN npm install --production
+# Permisos de almacenamiento y caché
+RUN chmod -R 777 storage bootstrap/cache
 
-# Ejecutar las migraciones de base de datos
-RUN php artisan optimize
-RUN php artisan config:cache
-RUN php artisan route:cache
-RUN php artisan view:cache
-RUN php artisan migrate:fresh --seed --force
+# Crear enlace simbólico para almacenamiento
+RUN php artisan storage:link || true
 
-# Cambiar los permisos de las carpetas de almacenamiento
-RUN chmod -R 777 storage
+# Exponer puerto
+EXPOSE 9000
 
-# Enlazar la carpeta de almacenamiento
-RUN php artisan storage:link
-
-# Exponer el puerto 8000 para el servidor de Laravel
-EXPOSE 8000
-
+# Ejecutar PHP-FPM
 CMD ["php-fpm"]
