@@ -17,6 +17,10 @@ use App\Http\Controllers\PaymentTypeController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+Route::get('/api', function () {
+    return response()->json(['message' => 'API is working']);
+});
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('update-password', [AuthController::class, 'updatePassword']);
