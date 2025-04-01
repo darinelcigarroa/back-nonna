@@ -19,7 +19,9 @@ class Order extends Model
         'total_amount',
         'payment_type_id',
         'payment_type_name',
-        'editing'
+        'editing',
+        'payment_date',
+        'cancellation_date'
     ];
 
     protected $appends = ['formatted_date', 'formatted_time', 'selectAll'];
@@ -60,6 +62,9 @@ class Order extends Model
             ->orWhere('total_amount', 'LIKE', "%$search%")
             ->orWhere('created_at', 'LIKE', "%$search%")
             ->orWhereHas('table', function ($query) use ($search) {
+                $query->where('name', 'ILIKE', "%$search%");
+            })
+            ->orWhereHas('paymentType', function ($query) use ($search) {
                 $query->where('name', 'ILIKE', "%$search%");
             })
             ->orWhereHas('orderStatus', function ($query) use ($search) {

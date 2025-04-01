@@ -10,11 +10,7 @@ use App\Traits\Loggable;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Log;
-
-use function Laravel\Prompts\search;
 use Maatwebsite\Excel\Facades\Excel;
-
 class EmployeeController extends Controller
 {
     use Loggable;
@@ -30,7 +26,7 @@ class EmployeeController extends Controller
             $search = $request->get('filter');
             $filterPosition = $request->get('filterPosition');
 
-            $employee = Employee::with('position:id,name')->select(
+            $employee = Employee::with('position:id,name', 'user:id,user_name,employee_id')->select(
                 'id',
                 'name',
                 'first_surname',

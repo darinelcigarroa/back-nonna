@@ -30,9 +30,7 @@ class OrderItemFactory extends Factory
             'price' => $dish->price,
             'dish_name' => $dish->name,
             'dish_type' => $dish->dishType->name,
-            'observations' =>  json_encode(
-                collect(range(1, 3))->map(fn () => $this->faker->sentence)->toArray()
-            ),
+            'observations' => collect(range(1, 3))->map(fn () => $this->faker->sentence)->toArray(),
             'status_id' => OrderItemStatus::STATUS_IN_KITCHEN
         ];
     }

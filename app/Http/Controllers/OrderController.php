@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Table;
 use App\Traits\Loggable;
 use App\Models\OrderStatus;
+use App\Exports\OrderExport;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use App\Events\OrdersUpdated;
@@ -15,11 +16,11 @@ use App\Models\OrderItemStatus;
 use App\Events\OrderItemsUpdated;
 use App\Events\WaiterEditingOrder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\OrderItem;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-
 class OrderController extends Controller
 {
     use AuthorizesRequests;
@@ -80,7 +81,7 @@ class OrderController extends Controller
                     'price' => $item['dish']['price'],
                     'dish_name' => $item['dish']['name'],
                     'dish_type' => $item['typeDish']['name'],
-                    'observations' => json_encode($item['observations']),
+                    'observations' => $item['observations'],
                     'status_id' => OrderItemStatus::STATUS_IN_KITCHEN,
                 ]);
 
@@ -228,7 +229,7 @@ class OrderController extends Controller
             if ($order->editing === true) {
 
                 $order->update([
-                    'editing' => false
+                    'editing' => false,
                 ]);
 
                 broadcast(new WaiterEditingOrder($order))->toOthers();
@@ -246,13 +247,20 @@ class OrderController extends Controller
     {
         try {
             DB::beginTransaction();
+            
+            $allItemsAreReady = $order->orderItems()->where('status_id', '!=', OrderItemStatus::STATUS_READY_TO_SERVE)->doesntExist();
+
+            if (!$allItemsAreReady) {
+                return ApiResponse::error('Todos los items de la orden deben estar terminadas por el chef.', 422);
+            }
 
             $this->authorize('payOrder', $order);
 
             $order->update([
                 'payment_type_id' => $request->order['paymentType']['id'],
                 'payment_type_name' => $request->order['paymentType']['name'],
-                'order_status_id' => OrderStatus::PAID
+                'order_status_id' => OrderStatus::PAID,
+                'payment_date' => now(),
             ]);
 
             Table::where('id', $order->table_id)->update(['in_use' => false]);
@@ -274,7 +282,8 @@ class OrderController extends Controller
             $this->authorize('cancelOrder', Order::class);
 
             $order->update([
-                'order_status_id' => OrderStatus::CANCELED
+                'order_status_id' => OrderStatus::CANCELED,
+                'cancellation_date' => now(),
             ]);
 
             Table::where('id', $order->table_id)->update(['in_use' => false]);
@@ -287,6 +296,14 @@ class OrderController extends Controller
             $this->logError($e);
             DB::rollBack();
             return ApiResponse::error('Error interno al cancelar la orden', 500);
+        }
+    }
+    public function exportOrderExcel(Request $request) {
+        try {
+            return Excel::download(new OrderExport($request->all()), 'orders.xlsx');
+        } catch (Exception $e) {
+            $this->logError($e);
+            return ApiResponse::error('Error interno al exportar los empleados');
         }
     }
 }
