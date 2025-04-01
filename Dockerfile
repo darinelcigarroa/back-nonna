@@ -2,9 +2,15 @@
 FROM php:8.1-fpm
 
 # Instalar dependencias del sistema y PHP
-RUN apt-get update && apt-get install -y libpng-dev libjpeg-dev libfreetype6-dev git unzip && \
+RUN apt-get update && apt-get install -y \
+    libpng-dev libjpeg-dev libfreetype6-dev \
+    git unzip curl libzip-dev libicu-dev \
+    nodejs npm && \
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
-    docker-php-ext-install gd pdo pdo_mysql
+    docker-php-ext-install gd pdo pdo_mysql zip intl
+
+# Instalar Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Copiar archivos de la aplicación
 COPY . /var/www/html
