@@ -1,7 +1,7 @@
 FROM php:8.4-fpm-alpine
 
 # Actualizar los repositorios de apk y agregar las dependencias necesarias.
-RUN apk update && apk add --no-cache ca-certificates postgresql-dev curl bash gd-dev libpng-dev libjpeg-turbo-dev libwebp-dev libxpm-dev zlib-dev zip-dev
+RUN apk update && apk add --no-cache ca-certificates postgresql-dev curl bash gd-dev libpng-dev libjpeg-turbo-dev libwebp-dev libxpm-dev zlib-dev libzip-dev
 
 # Instalar las extensiones de PHP necesarias.
 RUN docker-php-ext-install pdo pdo_pgsql gd zip
