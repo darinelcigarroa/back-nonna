@@ -1,7 +1,21 @@
 FROM php:8.4-fpm-alpine
 
 # Actualizar los repositorios de apk y agregar las dependencias necesarias.
-RUN apk update && apk add --no-cache ca-certificates postgresql-dev curl bash gd-dev libpng-dev libjpeg-turbo-dev libwebp-dev libxpm-dev zlib-dev libzip-dev linux-headers
+RUN apk update && apk add --no-cache \
+    ca-certificates \
+    postgresql-dev \
+    curl \
+    bash \
+    gd-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    libwebp-dev \
+    libxpm-dev \
+    zlib-dev \
+    libzip-dev \
+    linux-headers \
+    nodejs \
+    npm
 
 # Instalar las extensiones de PHP necesarias.
 RUN docker-php-ext-install pdo pdo_pgsql gd zip sockets
@@ -14,7 +28,7 @@ RUN composer config --global cafile /etc/ssl/certs/ca-certificates.crt
 WORKDIR /var/www
 
 # Copiar el código de tu aplicación al contenedor
-COPY . . 
+COPY . .
 
 # Ejecutar Composer para instalar las dependencias de producción
 RUN composer install --no-dev
@@ -28,6 +42,12 @@ RUN php artisan config:cache
 RUN php artisan route:cache
 RUN php artisan view:cache
 RUN php artisan migrate:fresh --seed --force
+
+# Cambiar los permisos de las carpetas de almacenamiento
+RUN chmod -R 777 storage
+
+# Enlazar la carpeta de almacenamiento
+RUN php artisan storage:link
 
 # Exponer el puerto 8000 para el servidor de Laravel
 EXPOSE 8000
