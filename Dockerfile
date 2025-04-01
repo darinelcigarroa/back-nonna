@@ -16,16 +16,18 @@ WORKDIR /var/www
 # Copiar el código de tu aplicación al contenedor
 COPY . . 
 
-# Ejecutar Composer para instalar las dependencias de producción con opción verbose para ver más detalles
-RUN composer install && \
-    npm install --producción && \
-    php artisan optimize && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache && \
-    php artisan migrate:fresh --seed --force && \
-    chmod -R 777 storage && \
-    php artisan storage:link
+# Ejecutar Composer para instalar las dependencias de producción
+RUN composer install --no-dev
+
+# Instalar las dependencias de Node.js y construir la aplicación
+RUN npm install --production
+
+# Ejecutar las migraciones de base de datos
+RUN php artisan optimize
+RUN php artisan config:cache
+RUN php artisan route:cache
+RUN php artisan view:cache
+RUN php artisan migrate:fresh --seed --force
 
 # Exponer el puerto 8000 para el servidor de Laravel
 EXPOSE 8000
