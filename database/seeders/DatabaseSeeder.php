@@ -17,9 +17,9 @@ class DatabaseSeeder extends Seeder
             OrderItemStatusSeeder::class,
             OrderStatusSeeder::class,
             DishTypeSeeder::class,
+            UserSeeder::class,
             // App
             // RoleSeeder::class, 
-            // UserSeeder::class,
             // TableSeeder::class,
             // DishSeeder::class,
             // OrderSeeder::class,
