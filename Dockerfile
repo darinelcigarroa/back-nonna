@@ -16,9 +16,11 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Copiar archivos de la aplicación
 COPY . /var/www/html
 
+
 # Establecer el directorio de trabajo
 WORKDIR /var/www/html
 
+RUN ls -la /var/www/html
 # Instalar dependencias
 RUN composer install --no-dev --optimize-autoloader
 
@@ -32,6 +34,8 @@ COPY supervisor.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Exponer el puerto 80 para Nginx
 EXPOSE 80
+
+RUN tail -f /var/log/nginx/error.log &
 
 # Usar Supervisor para manejar Nginx y PHP-FPM
 CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
