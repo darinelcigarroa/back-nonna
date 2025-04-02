@@ -13,12 +13,13 @@ use App\Http\Controllers\PositionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\PaymentTypeController;
+use App\Models\User;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/api-test', function () {
-    return response()->json(['message' => 'API is working']);
+    return response()->json(['message' => User::all()]);
 });
 
 Route::middleware('auth:sanctum')->group(function () {
