@@ -1,10 +1,8 @@
-# Usa una imagen base con PHP-FPM
-FROM php:8.2-fpm
+# Usa una imagen base con PHP-CLI
+FROM php:8.2-cli
 
-# Instala dependencias necesarias, incluyendo Nginx
+# Instala dependencias necesarias
 RUN apt-get update && apt-get install -y \
-    nginx \
-    supervisor \
     libpng-dev libjpeg-dev libfreetype6-dev \
     git unzip curl libzip-dev libicu-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -16,26 +14,18 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Copiar archivos de la aplicación
 COPY . /var/www/html
 
-
 # Establecer el directorio de trabajo
 WORKDIR /var/www/html
 
-RUN ls -la /var/www/html
-# Instalar dependencias
+# Instalar dependencias de Laravel
 RUN composer install --no-dev --optimize-autoloader
 
 # Configurar permisos
 RUN chmod -R 775 storage bootstrap/cache
 RUN chown -R www-data:www-data /var/www/html
 
-# Copiar configuración de Nginx y Supervisor
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY supervisor.conf /etc/supervisor/conf.d/supervisord.conf
+# Exponer el puerto 8000 (usado por `php artisan serve`)
+EXPOSE 8000
 
-# Exponer el puerto 80 para Nginx
-EXPOSE 80
-
-RUN tail -f /var/log/nginx/error.log &
-
-# Usar Supervisor para manejar Nginx y PHP-FPM
-CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Comando para iniciar Laravel con php artisan serve
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
