@@ -18,11 +18,11 @@ class DatabaseSeeder extends Seeder
             OrderStatusSeeder::class,
             DishTypeSeeder::class,
             // App
-            RoleSeeder::class, 
-            UserSeeder::class,
-            TableSeeder::class,
-            DishSeeder::class,
-            OrderSeeder::class,
+            // RoleSeeder::class, 
+            // UserSeeder::class,
+            // TableSeeder::class,
+            // DishSeeder::class,
+            // OrderSeeder::class,
         ]);
     }
 }
