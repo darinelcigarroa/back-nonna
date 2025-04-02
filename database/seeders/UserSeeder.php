@@ -14,7 +14,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory()->count(5)->create();
+        User::factory()->count(5)->create();
 
         $userSuperAdmin = User::updateOrCreate(
             ['email' => 'admin@admin.com'],
