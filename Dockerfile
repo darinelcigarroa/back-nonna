@@ -21,7 +21,7 @@ WORKDIR /var/www/html
 # Instalar dependencias de PHP y Node
 RUN composer install
 RUN npm install --production
-RUN npm artisan optimize
+RUN php artisan optimize
 RUN php artisan config:cache
 RUN php artisan route:cache
 RUN php artisan view:cache
