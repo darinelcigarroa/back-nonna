@@ -19,10 +19,10 @@ class DatabaseSeeder extends Seeder
             DishTypeSeeder::class,
             UserSeeder::class,
             // App
-            // RoleSeeder::class, 
-            // TableSeeder::class,
-            // DishSeeder::class,
-            // OrderSeeder::class,
+            RoleSeeder::class, 
+            TableSeeder::class,
+            DishSeeder::class,
+            OrderSeeder::class,
         ]);
     }
 }
