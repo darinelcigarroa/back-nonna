@@ -1,11 +1,11 @@
-# Usar la imagen de PHP con soporte para Laravel
-FROM php:8.2-cli
+# Usar la imagen de PHP con FPM
+FROM php:8.2-fpm
 
 # Instalar dependencias del sistema y PHP
 RUN apt-get update && apt-get install -y \
     libpng-dev libjpeg-dev libfreetype6-dev \
     git unzip curl libzip-dev libicu-dev \
-    nodejs npm && \
+    nodejs npm nginx && \
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install gd pdo pdo_mysql zip intl
 
@@ -38,8 +38,11 @@ RUN chmod -R 777 storage bootstrap/cache
 # Crear enlace simbólico para almacenamiento
 RUN php artisan storage:link || true
 
-# Exponer puerto
-EXPOSE 8000
+# Instalar la configuración de Nginx
+COPY nginx.conf /etc/nginx/sites-available/default
 
-# Ejecutar PHP-FPM
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Exponer puerto 80 para Nginx
+EXPOSE 80
+
+# Iniciar Nginx y PHP-FPM
+CMD service nginx start && php-fpm
