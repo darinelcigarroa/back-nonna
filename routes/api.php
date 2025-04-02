@@ -19,7 +19,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/api-test', function () {
-    return response()->json(['message' => User::all()]);
+    return response()->json(['message' => 'API SUCCESS']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {
