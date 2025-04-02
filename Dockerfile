@@ -27,9 +27,9 @@ RUN php artisan optimize
 RUN php artisan config:cache
 RUN php artisan route:cache
 RUN php artisan view:cache
-# RUN php artisan migrate --force
+RUN php artisan migrate --force
 # RUN php artisan db:seed --force
-RUN php artisan migrate --force --seed
+# RUN php artisan migrate --force --seed
 
 # Exponer el puerto 8000 para interactuar con la app si es necesario (pero Railway usará Nginx)
 EXPOSE 8000
