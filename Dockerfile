@@ -1,12 +1,13 @@
-# Usa una imagen base con PHP-CLI
+# Usar la imagen de PHP con soporte para Laravel
 FROM php:8.2-cli
 
-# Instala dependencias necesarias
+# Instalar dependencias del sistema y PHP
 RUN apt-get update && apt-get install -y \
     libpng-dev libjpeg-dev libfreetype6-dev \
     git unzip curl libzip-dev libicu-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_mysql zip intl
+    nodejs npm && \
+    docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    docker-php-ext-install gd pdo pdo_mysql zip intl
 
 # Instalar Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -17,15 +18,28 @@ COPY . /var/www/html
 # Establecer el directorio de trabajo
 WORKDIR /var/www/html
 
-# Instalar dependencias de Laravel
-RUN composer install --no-dev --optimize-autoloader
+# Instalar dependencias de PHP y Node
+RUN composer install
+RUN npm install --production
+RUN npm artisan optimize
+RUN php artisan config:cache
+RUN php artisan route:cache
+RUN php artisan view:cache
+RUN php artisan migrate --force
+RUN php artisan db:seed --force
 
-# Configurar permisos
-RUN chmod -R 775 storage bootstrap/cache
-RUN chown -R www-data:www-data /var/www/html
+# Ejecutar migraciones, seeders y configuración de almacenamiento
+RUN chmod -R 777 storage && \
+    php artisan storage:link
 
-# Exponer el puerto 8000 (usado por `php artisan serve`)
+# Permisos de almacenamiento y caché
+RUN chmod -R 777 storage bootstrap/cache
+
+# Crear enlace simbólico para almacenamiento
+RUN php artisan storage:link || true
+
+# Exponer puerto
 EXPOSE 8000
 
-# Comando para iniciar Laravel con php artisan serve
+# Ejecutar PHP-FPM
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
