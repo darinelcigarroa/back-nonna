@@ -17,6 +17,7 @@ class PositionSeeder extends Seeder
             ['name' => 'super admin', 'visible' => false],
             ['name' => 'chef', 'visible' => true],
             ['name' => 'waiter', 'visible' => true],
+            ['name' => 'accountant', 'visible' => true],
         ];
         
         foreach ($positions as $position) {

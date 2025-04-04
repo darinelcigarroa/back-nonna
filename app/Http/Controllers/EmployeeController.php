@@ -11,6 +11,7 @@ use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Maatwebsite\Excel\Facades\Excel;
+
 class EmployeeController extends Controller
 {
     use Loggable;
@@ -26,7 +27,7 @@ class EmployeeController extends Controller
             $search = $request->get('filter');
             $filterPosition = $request->get('filterPosition');
 
-            $employee = Employee::with('position:id,name', 'user:id,user_name,employee_id')->select(
+            $employees = Employee::with('position:id,name', 'user:id,user_name,employee_id')->select(
                 'id',
                 'name',
                 'first_surname',
@@ -40,9 +41,12 @@ class EmployeeController extends Controller
                     $query->whereIn('name', $filterPosition);
                 });
             })
+                ->whereHas('position', function ($query) {
+                    $query->where('visible', true);
+                })
                 ->orderBy('id', 'DESC')->paginate($rowsPerPage, ['*'], 'page', $page);
 
-            return ApiResponse::success(['employees' => $employee], 'Operación exitosa');
+            return ApiResponse::success(['employees' => $employees], 'Operación exitosa');
         } catch (Exception $e) {
             $this->logError($e);
             return ApiResponse::error('Error interno al obtener los empleados');
@@ -143,7 +147,8 @@ class EmployeeController extends Controller
             return ApiResponse::error('Error interno al eliminar el empleado');
         }
     }
-    public function exportEmployeeExcel(Request $request) {
+    public function exportEmployeeExcel(Request $request)
+    {
         try {
             return Excel::download(new EmployeeExport($request->all()), 'users.xlsx');
         } catch (Exception $e) {

@@ -11,8 +11,10 @@ class PositionController extends Controller
     public function index()
     {
         try {
+            $positions = Position::where('visible', true)->select('id', 'name')->get();
+
            return ApiResponse::success([
-                'positions' => Position::select('id', 'name')->get(),
+                'positions' => $positions,
             ]);
         } catch (Exception $e) {
             return ApiResponse::error('Error interno al obtener las posiciones', 500);

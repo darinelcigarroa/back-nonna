@@ -19,12 +19,13 @@ class UserSeeder extends Seeder
         $userSuperAdmin = User::updateOrCreate(
             ['email' => 'admin@admin.com'],
             [
-                'user_name' => 'Mario',
+                'user_name' => 'admin',
                 'email' => 'admin@admin.com',
                 'employee_id' => Employee::factory()->create()->id,
                 'password' => Hash::make('123'),
             ]
         );
+
         $userWaiter = User::updateOrCreate(
             ['email' => 'mesero@mesero.com'],
             [
