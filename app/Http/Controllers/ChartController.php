@@ -142,12 +142,11 @@ class ChartController extends Controller
                 $dish->value = round(($dish->total_sold / $totalSold) * 100, 2);
                 return $dish;
             });
-
             // Agregar "Otros" con su porcentaje
             $otherDishes = (object) [
                 'name' => 'Otros',
                 'total_sold' => $otherSold,
-                'value' => round(($otherSold / $totalSold) * 100, 2),
+                'value' => $otherSold !== 0 ? round(($otherSold / $totalSold) * 100, 2) : 0,
             ];
 
             // Unimos los resultados
