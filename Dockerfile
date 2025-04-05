@@ -5,16 +5,19 @@ FROM php:8.2-cli
 RUN apt-get update && apt-get upgrade -y
 
 # Instalar las dependencias del sistema una por una para aislar el error
-FROM php:8.2-fpm
- 
- # Instalar dependencias del sistema y PHP
- RUN apt-get update && apt-get install -y \
-     libpng-dev libjpeg-dev libfreetype6-dev \
-     git unzip curl libzip-dev libicu-dev \
-     nodejs npm && \
-     docker-php-ext-configure gd --with-freetype --with-jpeg && \
-     docker-php-ext-install gd pdo pdo_pgsql zip intl
- 
+RUN apt-get install -y \
+    git \
+    unzip \
+    curl \
+    libpq-dev \
+    libzip-dev \
+    pkg-config
+
+# Verificar que libzip esté correctamente instalado
+RUN apt-cache policy libzip-dev
+
+# Instalar las extensiones PHP necesarias
+RUN docker-php-ext-install pdo_pgsql zip
 
 # Limpiar el caché de apt para reducir el tamaño de la imagen
 RUN rm -rf /var/lib/apt/lists/*
