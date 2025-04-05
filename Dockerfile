@@ -1,6 +1,7 @@
+# Usa la imagen base de PHP
 FROM php:8.2-cli
 
-# Instalar dependencias del sistema y extensiones necesarias
+# Instalar dependencias del sistema necesarias para extensiones y PostgreSQL
 RUN apt-get update && apt-get install -y \
     unzip \
     git \
@@ -11,9 +12,10 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libonig-dev \
     libxml2-dev \
+    libpq-dev \  # Paquete para PostgreSQL
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
-        pdo_mysql \
+        pdo_pgsql \  # Extensión PDO para PostgreSQL
         zip \
         gd \
         pcntl
@@ -24,11 +26,9 @@ WORKDIR /app
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copiar composer y correr instalación
+# Copiar archivos composer y correr instalación
 COPY composer.json composer.lock ./
-# RUN composer install --no-dev --optimize-autoloader
-RUN composer install --no-dev --optimize-autoloader || true
-
+RUN composer install --no-dev --optimize-autoloader
 
 # Copiar el resto del proyecto
 COPY . .
