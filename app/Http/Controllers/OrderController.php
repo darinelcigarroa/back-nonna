@@ -106,7 +106,7 @@ class OrderController extends Controller
         } catch (Exception $e) {
             $this->logError($e);
             DB::rollBack();
-            return ApiResponse::error('Error interno al enviar las orden a cocina', 500);
+            return ApiResponse::error('Error interno al enviar las orden a cocina' . $e, 500);
         }
     }
     /**
