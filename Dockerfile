@@ -12,9 +12,10 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libonig-dev \
     libxml2-dev \
-    libpq-dev \  # Paquete para PostgreSQL
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_pgsql zip gd pcntl
+    libpq-dev && \
+    # Configuración y instalación de las extensiones PHP necesarias
+    docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    docker-php-ext-install pdo_pgsql zip gd pcntl
 
 # Directorio de trabajo
 WORKDIR /app
