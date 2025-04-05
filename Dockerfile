@@ -1,13 +1,16 @@
-# Usa la imagen base de PHP (modificada para solo incluir lo necesario para Reverb)
+# Usa la imagen base de PHP
 FROM php:8.2-cli
 
 # Instalar dependencias del sistema necesarias para Reverb y PostgreSQL
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y \
     git \
     unzip \
     curl \
     libpq-dev && \
-    docker-php-ext-install pdo_pgsql zip
+    docker-php-ext-install pdo_pgsql zip && \
+    # Limpiar el caché de apt para reducir el tamaño de la imagen
+    rm -rf /var/lib/apt/lists/*
 
 # Instalar Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
