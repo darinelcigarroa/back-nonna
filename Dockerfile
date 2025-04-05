@@ -19,8 +19,8 @@ RUN apt-get update && apt-get upgrade -y && \
     # Limpiar el caché de apt para reducir el tamaño de la imagen
     rm -rf /var/lib/apt/lists/*
 
-# Instalar la extensión de PCNTL manualmente si no está disponible
-RUN apt-get update && apt-get install -y libpcntl-dev && \
+# Instalar la extensión pcntl sin libpcntl-dev
+RUN apt-get update && apt-get install -y --no-install-recommends libmagic-dev && \
     docker-php-ext-install pcntl
 
 # Instalar Composer
