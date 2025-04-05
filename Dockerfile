@@ -1,31 +1,28 @@
+# Usa la imagen base de PHP (modificada para solo incluir lo necesario para Reverb)
 FROM php:8.2-cli
 
+# Instalar dependencias del sistema necesarias para Reverb y PostgreSQL
 RUN apt-get update && apt-get install -y \
-    unzip \
     git \
-    libzip-dev \
-    zip \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libonig-dev \
-    libxml2-dev \
+    unzip \
+    curl \
     libpq-dev && \
-    docker-php-ext-configure gd --with-freetype --with-jpeg && \
-    docker-php-ext-install pdo_pgsql zip gd pcntl
+    docker-php-ext-install pdo_pgsql zip
 
-WORKDIR /app
+# Instalar Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Copiar archivos de la aplicación
+COPY . /var/www/html
 
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader -vvv
+# Establecer el directorio de trabajo
+WORKDIR /var/www/html
 
-COPY . .
+# Instalar dependencias de PHP (sin dev) y Composer
+RUN composer install --no-dev --optimize-autoloader
 
-RUN chmod +x artisan
-RUN mkdir -p storage/framework/{sessions,views,cache} && chmod -R 777 storage bootstrap/cache
-
+# Exponer el puerto necesario para Reverb (usualmente 6001)
 EXPOSE 6001
 
+# Comando por defecto para levantar Laravel Reverb
 CMD ["php", "artisan", "reverb:start"]
