@@ -5,12 +5,18 @@ FROM php:8.2-cli
 RUN apt-get update && apt-get upgrade -y
 
 # Instalar las dependencias del sistema una por una para aislar el error
-RUN apt-get install -y git
-RUN apt-get install -y unzip
-RUN apt-get install -y curl
-RUN apt-get install -y libpq-dev
+RUN apt-get install -y \
+    git \
+    unzip \
+    curl \
+    libpq-dev \
+    libzip-dev \
+    pkg-config
 
-# Instalar las extensiones PHP
+# Verificar que libzip esté correctamente instalado
+RUN apt-cache policy libzip-dev
+
+# Instalar las extensiones PHP necesarias
 RUN docker-php-ext-install pdo_pgsql zip
 
 # Limpiar el caché de apt para reducir el tamaño de la imagen
