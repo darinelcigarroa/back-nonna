@@ -23,9 +23,12 @@ WORKDIR /app
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+
 # Copiar archivos composer y correr instalación
+
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader -vvv
+
 
 # Copiar el resto del proyecto
 COPY . .
