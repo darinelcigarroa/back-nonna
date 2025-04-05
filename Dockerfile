@@ -1,23 +1,20 @@
-# Usa la imagen base de PHP
 FROM php:8.2-cli
 
 # Instalar dependencias del sistema necesarias para Reverb y PostgreSQL
-RUN apt-get update && apt-get upgrade -y
-
-# Instalar las dependencias del sistema una por una para aislar el error
-RUN apt-get install -y \
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y \
     git \
     unzip \
     curl \
     libpq-dev \
     libzip-dev \
-    pkg-config
-
-# Verificar que libzip esté correctamente instalado
-RUN apt-cache policy libzip-dev
-
-# Instalar las extensiones PHP necesarias
-RUN docker-php-ext-install pdo_pgsql zip
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    pkg-config && \
+    # Instalar las extensiones de PHP necesarias
+    docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    docker-php-ext-install gd pdo_pgsql zip
 
 # Limpiar el caché de apt para reducir el tamaño de la imagen
 RUN rm -rf /var/lib/apt/lists/*
