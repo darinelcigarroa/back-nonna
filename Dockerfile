@@ -11,13 +11,13 @@ RUN apt-get update && apt-get upgrade -y && \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
+    libpcntl-dev \
     pkg-config && \
     # Instalar las extensiones de PHP necesarias
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
-    docker-php-ext-install gd pdo_pgsql zip
-
-# Limpiar el caché de apt para reducir el tamaño de la imagen
-RUN rm -rf /var/lib/apt/lists/*
+    docker-php-ext-install gd pdo_pgsql zip pcntl && \
+    # Limpiar el caché de apt para reducir el tamaño de la imagen
+    rm -rf /var/lib/apt/lists/*
 
 # Instalar Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
