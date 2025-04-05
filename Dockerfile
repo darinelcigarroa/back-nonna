@@ -1,38 +1,34 @@
-# Usa la imagen oficial de Laravel
-FROM composer:latest AS build
-
-# Establece el directorio de trabajo
-WORKDIR /app
-
-# Copia composer files y descarga dependencias
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader
-
-# Copia el resto del proyecto
-COPY . .
-
-# Imagen final
 FROM php:8.2-cli
 
-# Instala extensiones necesarias (ajusta según lo que uses)
+# Instalar extensiones necesarias de PHP y herramientas del sistema
 RUN apt-get update && apt-get install -y \
-    libzip-dev \
     unzip \
     git \
-    && docker-php-ext-install zip pdo pdo_mysql
+    libzip-dev \
+    zip \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    && docker-php-ext-install pdo_mysql zip
 
-# Instala Composer
-COPY --from=build /usr/bin/composer /usr/bin/composer
-
-# Copia código del proyecto
-COPY --from=build /app /app
+# Crear directorio de trabajo
 WORKDIR /app
 
-# Crea cache y directorios necesarios
+# Copiar archivos de composer primero para aprovechar el cache
+COPY composer.json composer.lock ./
+
+# Instalar Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Ejecutar composer install
+RUN composer install --no-dev --optimize-autoloader
+
+# Luego copiar el resto del proyecto
+COPY . .
+
+# Asegurar permisos correctos
 RUN mkdir -p storage/framework/{sessions,views,cache} && chmod -R 777 storage bootstrap/cache
 
-# Expone el puerto (no obligatorio para Reverb, pero útil)
 EXPOSE 6001
 
-# Comando principal: aquí corre Reverb
 CMD ["php", "artisan", "reverb:start"]
