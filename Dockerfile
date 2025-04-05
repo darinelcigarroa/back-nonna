@@ -14,11 +14,7 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libpq-dev \  # Paquete para PostgreSQL
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install \
-        pdo_pgsql \  # Extensión PDO para PostgreSQL
-        zip \
-        gd \
-        pcntl
+    && docker-php-ext-install pdo_pgsql zip gd pcntl
 
 # Directorio de trabajo
 WORKDIR /app
