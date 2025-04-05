@@ -2,16 +2,16 @@
 FROM php:8.2-cli
 
 # Instalar dependencias del sistema necesarias para extensiones y PostgreSQL
-RUN apt-get update && apt-get install -y \
-    unzip \
-    git \
-    libzip-dev \
-    zip \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libonig-dev \
-    libxml2-dev \
+RUN apt-get update && apt-get install -y && \
+    unzip && \
+    git && \
+    libzip-dev && \
+    zip && \
+    libpng-dev && \
+    libjpeg-dev && \
+    libfreetype6-dev && \
+    libonig-dev && \
+    libxml2-dev && \
     libpq-dev && \
     # Configuración y instalación de las extensiones PHP necesarias
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
