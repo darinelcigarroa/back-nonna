@@ -96,7 +96,7 @@ class OrderController extends Controller
                 'table'
             ]);
 
-            broadcast(new OrdersUpdated($order))->toOthers();
+            // broadcast(new OrdersUpdated($order))->toOthers();
 
             DB::commit();
 
