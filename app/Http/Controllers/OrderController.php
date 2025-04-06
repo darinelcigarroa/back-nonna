@@ -96,7 +96,7 @@ class OrderController extends Controller
                 'table'
             ]);
 
-            // broadcast(new OrdersUpdated($order))->toOthers();
+            broadcast(new OrdersUpdated($order))->toOthers();
 
             DB::commit();
 
@@ -106,7 +106,7 @@ class OrderController extends Controller
         } catch (Exception $e) {
             $this->logError($e);
             DB::rollBack();
-            return ApiResponse::error('Error interno al enviar las orden a cocina' . $e, 500);
+            return ApiResponse::error('Error interno al enviar las orden a cocina', 500);
         }
     }
     /**
