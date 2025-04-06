@@ -13,10 +13,8 @@ RUN apt-get update && apt-get upgrade -y && \
     libfreetype6-dev \
     pkg-config && \
     echo "APT install complete" && \
-    # Instalar las extensiones de PHP necesarias
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install gd pdo_pgsql zip && \
-    # Limpiar el caché de apt para reducir el tamaño de la imagen
     rm -rf /var/lib/apt/lists/*
 
 # Instalar la extensión pcntl sin libpcntl-dev
@@ -36,7 +34,6 @@ WORKDIR /var/www/html
 RUN composer install --no-dev --optimize-autoloader
 
 # Exponer el puerto necesario para Reverb (usualmente 6001)
-EXPOSE 6001
+EXPOSE 9000
 
-# Comando por defecto para levantar Laravel Reverb
-CMD ["php", "artisan", "reverb:start"]
+CMD ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=9000"]
