@@ -1,16 +1,12 @@
 #!/bin/bash
-# Make sure this file has executable permissions, run `chmod +x build-app.sh`
-
-# Exit the script if any command fails
 set -e
-
-# Build assets using NPM
+echo "Building assets using npm"
 npm run build
 
-# Clear cache
+echo "Clearing cache"
 php artisan optimize:clear
 
-# Cache the various components of the Laravel application
+echo "Caching config, events, routes, views"
 php artisan config:cache
 php artisan event:cache
 php artisan route:cache
