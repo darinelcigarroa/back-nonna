@@ -1,10 +1,9 @@
 #!/bin/bash
 
-# Mostrar comandos en ejecución
-set -x
+echo "📁 Listando archivos..."
+ls -la
 
-echo "🚀 Iniciando worker de Laravel..."
+echo "📂 Directorio actual: $(pwd)"
 
-php artisan queue:work
-
-echo "❌ El worker ha terminado"
+echo "🚀 Iniciando el worker..."
+php artisan queue:work --verbose --tries=3 --timeout=90
