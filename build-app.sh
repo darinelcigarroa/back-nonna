@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 echo "Building assets using npm"
-npm run build
+# npm run build
 
 echo "Clearing cache"
 php artisan optimize:clear
