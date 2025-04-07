@@ -3,6 +3,8 @@
 echo "📁 Listando archivos..."
 ls -la
 
+echo "🔑 APP_KEY: $APP_KEY"
+
 echo "📂 Directorio actual: $(pwd)"
 
 echo "🚀 Iniciando el worker..."
