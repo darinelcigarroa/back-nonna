@@ -13,6 +13,8 @@ class DishTypeSeeder extends Seeder
      */
     public function run(): void
     {
+        DB::table('dish_types')->truncate();
+
         DB::table('dish_types')->updateOrInsert(
             ['id' => 1],
             ['name' => 'Entrada']
