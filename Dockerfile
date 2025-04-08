@@ -1,39 +1,26 @@
-FROM php:8.2-cli
+# Dockerfile
+FROM php:8.3-cli
 
-# Instalar dependencias del sistema necesarias para Reverb y PostgreSQL
-RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y \
-    git \
-    unzip \
-    curl \
-    libpq-dev \
-    libzip-dev \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    pkg-config && \
-    echo "APT install complete" && \
-    docker-php-ext-configure gd --with-freetype --with-jpeg && \
-    docker-php-ext-install gd pdo_pgsql zip && \
-    rm -rf /var/lib/apt/lists/*
+# Instala dependencias necesarias
+RUN apt-get update && apt-get install -y \
+    git unzip curl nginx supervisor
 
-# Instalar la extensión pcntl sin libpcntl-dev
-RUN apt-get update && apt-get install -y --no-install-recommends libmagic-dev && \
-    docker-php-ext-install pcntl
+# Instala Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Instalar Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Copia tu app Laravel (o solo lo necesario para Reverb)
+WORKDIR /app
+COPY . /app
 
-# Copiar archivos de la aplicación
-COPY . /var/www/html
+# Copia configuración de nginx
+COPY ./nginx.conf /etc/nginx/nginx.conf
 
-# Establecer el directorio de trabajo
-WORKDIR /var/www/html
+# Copia archivo de supervisord para levantar nginx y Reverb juntos
+COPY ./supervisord.conf /etc/supervisord.conf
 
-# Instalar dependencias de PHP (sin dev) y Composer
+# Instala dependencias de Laravel si hace falta
 RUN composer install --no-dev --optimize-autoloader
 
-# Exponer el puerto necesario para Reverb (usualmente 9000)
-EXPOSE 9000
+EXPOSE 80
 
-CMD ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=9000"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
