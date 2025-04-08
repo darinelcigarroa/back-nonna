@@ -14,7 +14,7 @@ return [
     | and production domains which access your API via a frontend SPA.
     |
     */
-'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', 'front-nonna-production.up.railway.app,back-nonna-production.up.railway.app')),
+    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', 'front-nonna-production.up.railway.app,back-nonna-production.up.railway.app')),
 
 
     /*
