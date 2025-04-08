@@ -13,7 +13,6 @@ use App\Http\Controllers\PositionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\PaymentTypeController;
-use App\Models\User;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -21,6 +20,13 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/api-test', function () {
     return response()->json(['message' => 'API SUCCESS']);
 });
+
+// routes/web.php
+Route::post('/trigger-event', function () {
+    broadcast(new \App\Events\TestEvent('Este es un evento de prueba'));
+    return response()->json(['message' => 'Evento emitido']);
+});
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
