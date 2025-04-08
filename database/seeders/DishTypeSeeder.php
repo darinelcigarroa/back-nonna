@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\DishType;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DishTypeSeeder extends Seeder
 {
@@ -12,9 +13,24 @@ class DishTypeSeeder extends Seeder
      */
     public function run(): void
     {
-        DishType::create(['name' => 'Entrada']);
-        DishType::create(['name' => 'Plato Fuerte']);
-        DishType::create(['name' => 'Postre']);
-        DishType::create(['name' => 'Bebida']);
+        DB::table('dish_types')->updateOrInsert(
+            ['id' => 1],
+            ['name' => 'Entrada']
+        );
+        
+        DB::table('dish_types')->updateOrInsert(
+            ['id' => 2],
+            ['name' => 'Plato Fuerte']
+        );
+        
+        DB::table('dish_types')->updateOrInsert(
+            ['id' => 3],
+            ['name' => 'Postre']
+        );
+        
+        DB::table('dish_types')->updateOrInsert(
+            ['id' => 4],
+            ['name' => 'Bebida']
+        );        
     }
 }

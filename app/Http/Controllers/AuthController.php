@@ -69,6 +69,7 @@ class AuthController extends Controller
             ], 'Has iniciado sesión');
 
         } catch (ValidationException $e) {
+            $this->logError($e);
             return ApiResponse::error('Error de validación', 422, $e->errors());
         } catch (Exception $e) {
             $this->logError($e);
