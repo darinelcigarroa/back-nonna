@@ -33,7 +33,8 @@ RUN composer install --no-dev --optimize-autoloader
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
 # Crear los directorios necesarios para los logs
-RUN mkdir -p /var/log/reverb && mkdir -p /var/log/nginx
+RUN mkdir -p /var/log/reverb /var/log/nginx && \
+    chown -R www-data:www-data /var/log/reverb /var/log/nginx
 
 # Copia el archivo de configuración de supervisord
 COPY ./supervisord.conf /etc/supervisord.conf
