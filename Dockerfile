@@ -4,6 +4,7 @@ FROM php:8.3-cli
 # Instala dependencias necesarias
 RUN apt-get update && apt-get upgrade -y && \
     apt-get install -y \
+    nginx \
     git \
     unzip \
     curl \
