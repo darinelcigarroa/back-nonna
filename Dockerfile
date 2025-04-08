@@ -12,13 +12,13 @@ RUN apt-get update && apt-get upgrade -y && \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
-    pkg-config && \
+    pkg-config \
+    supervisor && \    # <--- aquí
     echo "APT install complete" && \
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install gd pdo_pgsql zip && \
     rm -rf /var/lib/apt/lists/*
-    RUN apt-get update && apt-get install -y --no-install-recommends libmagic-dev && \
-    docker-php-ext-install pcntl
+
 # Instala Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
