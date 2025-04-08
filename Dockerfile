@@ -13,7 +13,7 @@ RUN apt-get update && apt-get upgrade -y && \
     libjpeg-dev \
     libfreetype6-dev \
     pkg-config \
-    supervisor && \    # <--- aquí
+    supervisor && \
     echo "APT install complete" && \
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install gd pdo_pgsql zip && \
