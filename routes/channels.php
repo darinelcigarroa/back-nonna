@@ -10,6 +10,11 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return false;
 });
 
+Broadcast::channel('test-channel', function ($user) {
+    // Autenticación del canal
+    return true;  // Esto es solo un ejemplo, puedes agregar más lógica para determinar si el usuario tiene acceso
+});
+
 Broadcast::channel('waiter-editing-order', function ($user) {
     return $user->hasRole(['waiter', 'chef']);
 });
