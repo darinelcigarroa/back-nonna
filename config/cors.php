@@ -17,12 +17,12 @@ return [
 
     'paths' => ['login', 'register', 'sanctum/csrf-cookie', 'api/*'],
 
-
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        env('FRONTEND_URL', 'http://localhost:3000'),
-    ],
+  'allowed_origins' => [
+    env('FRONTEND_URL', 'http://localhost:9000'),
+    'https://front-nonna-production.up.railway.app',  // Producción
+],
 
     'allowed_origins_patterns' => [],
 
