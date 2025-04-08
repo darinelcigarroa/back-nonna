@@ -20,6 +20,8 @@ RUN apt-get update && apt-get upgrade -y && \
     docker-php-ext-install gd pdo_pgsql zip && \
     rm -rf /var/lib/apt/lists/*
 
+RUN composer install --no-dev --optimize-autoloader
+
 # Instala Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
@@ -30,8 +32,12 @@ COPY . /app
 # Copia configuración de nginx
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
-# Copia archivo de supervisord para levantar nginx y Reverb juntos
+# Crear los directorios necesarios para los logs
+RUN mkdir -p /var/log/reverb && mkdir -p /var/log/nginx
+
+# Copia el archivo de configuración de supervisord
 COPY ./supervisord.conf /etc/supervisord.conf
+
 
 # Instala dependencias de Laravel si hace falta
 RUN composer install --no-dev --optimize-autoloader
