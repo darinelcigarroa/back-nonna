@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DishController;
@@ -27,9 +29,10 @@ Route::get('/debug-broadcast', function () {
     ]);
 });
 
-// routes/web.php
-Route::post('/trigger-event', function () {
-    broadcast(new \App\Events\TestEvent('Este es un evento de prueba'));
+Route::post('/trigger-event', function (Request $request) {
+    $msg = $request->input('message', 'Mensaje por defecto');
+    Log::info('Mensaje recibido: ' . $msg);
+    broadcast(new \App\Events\TestEvent($msg));
     return response()->json(['message' => 'Evento emitido']);
 });
 
