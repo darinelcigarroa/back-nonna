@@ -30,12 +30,19 @@ Route::get('/debug-broadcast', function () {
 });
 
 Route::post('/trigger-event', function (Request $request) {
-    $msg = $request->input('message', 'Mensaje por defecto');
-    Log::info('Mensaje recibido: ' . $msg);
-    broadcast(new \App\Events\TestEvent($msg));
-    return response()->json(['message' => 'Evento emitido']);
-});
+    try {
+        $msg = $request->input('message', 'Mensaje por defecto');
+        
+        Log::info('Emitido evento TestEvent con mensaje:', ['message' => $msg]);
 
+        broadcast(new \App\Events\TestEvent($msg));
+
+        return response()->json(['message' => 'Evento emitido']);
+    } catch (\Exception $e) {
+        Log::error('Error al emitir el evento:', ['error' => $e->getMessage()]);
+        return response()->json(['message' => 'Error al emitir evento'], 500);
+    }
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
