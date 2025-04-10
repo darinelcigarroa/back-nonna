@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Middleware\HandleCors;
 use Illuminate\Auth\AuthenticationException;
@@ -76,6 +77,12 @@ return Application::configure(basePath: dirname(__DIR__))
         });
         
         $exceptions->render(function (\Exception $e) {
+            Log::error('Error interno', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Error interno en el servidor',
