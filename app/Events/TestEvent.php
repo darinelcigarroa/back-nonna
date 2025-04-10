@@ -21,6 +21,7 @@ class TestEvent implements ShouldBroadcast
 
     public function broadcastOn()
     {
+        Log::info("Broadcasting to channel: test-channel");
         return new Channel('test-channel');
     }
 
