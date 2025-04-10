@@ -22,13 +22,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/api-test', function () {
     return response()->json(['message' => 'API SUCCESS']);
 });
-Route::get('/debug-broadcast', function () {
-    return response()->json([
-        'default_broadcast_driver' => config('broadcasting.default'),
-        'driver_config' => config('broadcasting.connections.reverb'),
-    ]);
-});
 
+// routes/web.php
 Route::post('/trigger-event', function (Request $request) {
     try {
         $msg = $request->input('message', 'Mensaje por defecto');
