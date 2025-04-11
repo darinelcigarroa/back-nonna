@@ -12,6 +12,7 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 
 Broadcast::channel('test-channel', function ($user) {
     // Autenticación del canal
+    Log:info('trasnmitiendo al canal test-channel');
     return true;  // Esto es solo un ejemplo, puedes agregar más lógica para determinar si el usuario tiene acceso
 });
 

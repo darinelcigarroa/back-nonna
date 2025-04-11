@@ -1,5 +1,5 @@
 #!/bin/bash
 
 echo "🚀 Iniciando reverb..."
-php artisan reverb:start --host=0.0.0.0 --port=9000 --debug
+php artisan reverb:start --port=6001 --debug
 echo "🚀 Termino reverb..."
