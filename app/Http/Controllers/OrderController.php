@@ -143,6 +143,7 @@ class OrderController extends Controller
                 'folio' => $order->folio,
                 'date' => $order->formatted_date,
                 'time' => $order->formatted_time,
+                'observations' => $order->observations ?? [],
             ];
             
             broadcast(new WaiterEditingOrder($order))->toOthers();
