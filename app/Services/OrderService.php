@@ -43,7 +43,7 @@ class OrderService
                 $query->whereIn('order_status_id', [OrderStatus::PAID, OrderStatus::CANCELED]);
             })
             ->when($isChef, function ($query) {
-                $query->whereNotIn('order_status_id', [OrderStatus::COMPLETED, OrderStatus::CANCELED]);
+                $query->whereNotIn('order_status_id', [OrderStatus::COMPLETED, OrderStatus::CANCELED, OrderStatus::PAID]);
             })
             ->when($isWaiter, function ($query) use ($user) {
                 $query->where('user_id', $user->id)
