@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Exception;
 use App\Models\Order;
 use App\Models\Table;
+use App\Models\DishType;
 use App\Traits\Loggable;
+use App\Models\OrderItem;
 use App\Models\OrderStatus;
 use App\Exports\OrderExport;
 use App\Helpers\ApiResponse;
@@ -16,11 +18,12 @@ use App\Models\OrderItemStatus;
 use App\Events\OrderItemsUpdated;
 use App\Events\WaiterEditingOrder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Models\OrderItem;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
 class OrderController extends Controller
 {
     use AuthorizesRequests;
@@ -145,7 +148,7 @@ class OrderController extends Controller
                 'time' => $order->formatted_time,
                 'observations' => $order->observations ?? [],
             ];
-            
+
             broadcast(new WaiterEditingOrder($order))->toOthers();
 
             return ApiResponse::success(['order' => $orderData, 'orderItems' => $order->orderItems]);
@@ -168,6 +171,7 @@ class OrderController extends Controller
             $updatedItems = [];
 
             foreach ($request->orders as $item) {
+                Log::info('Item', [$item]);
                 $status = $item['status_id'] == OrderItemStatus::STATUS_CREATED ? OrderItemStatus::STATUS_IN_KITCHEN : $item['status_id'];
                 $updatedItem = $order->orderItems()->updateOrCreate(
                     ['id' => $item['id'] ?? null],
@@ -176,7 +180,11 @@ class OrderController extends Controller
                         'quantity' => $item['quantity'],
                         'price' => $item['dish']['price'],
                         'dish_name' => $item['dish']['name'],
-                        'dish_type' => $item['typeDish']['name'] ?? $item['dish']['dish_type']['name'],
+                        // 'dish_type' => $item['typeDish']['name'] ?? $item['dish']['dish_type']['name'],
+                        'dish_type' => $item['typeDish']['name'] ??
+                            $item['dish']['dish_type']['name'] ??
+                            DishType::find($item['dish']['dish_type_id'])->name ?? 'Nombre no disponible',
+
                         'observations' => $item['observations'] ?? null,
                         'status_id' => $status
                     ]
@@ -248,7 +256,7 @@ class OrderController extends Controller
     {
         try {
             DB::beginTransaction();
-            
+
             $allItemsAreReady = $order->orderItems()->where('status_id', '!=', OrderItemStatus::STATUS_READY_TO_SERVE)->doesntExist();
 
             if (!$allItemsAreReady) {
@@ -299,7 +307,8 @@ class OrderController extends Controller
             return ApiResponse::error('Error interno al cancelar la orden', 500);
         }
     }
-    public function exportOrderExcel(Request $request) {
+    public function exportOrderExcel(Request $request)
+    {
         try {
             return Excel::download(new OrderExport($request->all()), 'orders.xlsx');
         } catch (Exception $e) {

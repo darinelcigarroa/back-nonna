@@ -3,6 +3,8 @@
 namespace App\Exports;
 
 use App\Models\Employee;
+use App\Models\Position;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -17,16 +19,20 @@ class EmployeeExport implements FromCollection, WithHeadings, WithMapping, WithS
     protected $positions = [
         'waiter' => 'MESERO',
         'chef' => 'CHEF',
+        'accountant' => 'CONTADOR', 
     ];
     
     public function __construct($roles = null)
     {
+        Log::info('Roles: ', ['roles' => $roles]);
         $this->roles = $roles;
     }
 
     public function collection()
     {
-        $query = Employee::with('position');
+        $query = Employee::with('position')->whereHas('position', function ($query) {
+            $query->where('id', '!=', Position::SUPER_ADMIN);
+        });
 
         if ($this->roles && !in_array('all', $this->roles)) {
             $query->whereHas('position', function ($query) {
